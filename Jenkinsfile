@@ -10,7 +10,7 @@ pipeline {
         stage('Récupérer le code source') {
             steps {
                 // Récupération du code depuis le référentiel Git
-                git url: 'https://votre-repo.git', branch: 'main'
+                git url: 'https://github.com/chedlikh/kaddem.git', branch: 'main'
             }
         }
 
