@@ -1,5 +1,5 @@
 pipeline {
-    agent { label 'master' }
+    agent any 
 
     triggers {
         // Configure le déclenchement basé sur des push Git
