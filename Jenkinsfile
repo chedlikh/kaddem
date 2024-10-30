@@ -2,7 +2,7 @@ pipeline {
     agent any
     
     environment {
-        NEXUS_URL = 'http://192.168.33.10:8081/repository/maven-releases/'
+        NEXUS_URL = 'http://192.168.33.11:8081/repository/maven-releases/'
         CREDENTIALS_ID = 'NEXUS_CRED' // replace with your actual credential ID in Jenkins
     }
 
