@@ -1,33 +1,61 @@
 pipeline {
     agent any
-    
-    environment {
-        NEXUS_URL = 'http://192.168.33.11:8081/repository/maven-releases/'
-        CREDENTIALS_ID = 'NEXUS_CRED' // replace with your actual credential ID in Jenkins
+    tools {
+        maven "MAVEN"
     }
-
+    environment {
+        NEXUS_VERSION = "nexus3"
+        NEXUS_PROTOCOL = "http"
+        NEXUS_URL = "192.168.33.10:8081"
+        NEXUS_REPOSITORY = "maven-central-repository"
+        NEXUS_CREDENTIAL_ID = "NEXUS_CRED"
+    }
     stages {
-        stage('Test Nexus Repository Access') {
+        stage("Clone code from GitHub") {
             steps {
                 script {
-                    // Test repository access by making a HEAD request
-                    withCredentials([usernamePassword(credentialsId: CREDENTIALS_ID, passwordVariable: 'NEXUS_PASS', usernameVariable: 'NEXUS_USER')]) {
-                        sh """
-                            echo "Testing Nexus Repository Access"
-                            status_code=\$(curl -s -o /dev/null -w "%{http_code}" -u \$NEXUS_USER:\$NEXUS_PASS -I $NEXUS_URL)
-                            if [ "\$status_code" -eq 200 ]; then
-                                echo "Access to Nexus repository is successful."
-                            elif [ "\$status_code" -eq 401 ]; then
-                                echo "Unauthorized: Check Nexus credentials."
-                                exit 1
-                            elif [ "\$status_code" -eq 404 ]; then
-                                echo "Repository not found: Check the Nexus repository URL."
-                                exit 1
-                            else
-                                echo "Error: Received status code \$status_code"
-                                exit 1
-                            fi
-                        """
+                    git branch: 'main', credentialsId: 'githubwithpassword', url: 'https://github.com/devopshint/jenkins-nexus';
+                }
+            }
+        }
+        stage("Maven Build") {
+            steps {
+                script {
+                    sh "mvn package -DskipTests=true"
+                }
+            }
+        }
+        stage("Publish to Nexus Repository Manager") {
+            steps {
+                script {
+                    pom = readMavenPom file: "pom.xml";
+                    filesByGlob = findFiles(glob: "target/*.${pom.packaging}");
+                    echo "${filesByGlob[0].name} ${filesByGlob[0].path} ${filesByGlob[0].directory} ${filesByGlob[0].length} ${filesByGlob[0].lastModified}"
+                    artifactPath = filesByGlob[0].path;
+                    artifactExists = fileExists artifactPath;
+                    if(artifactExists) {
+                        echo "*** File: ${artifactPath}, group: ${pom.groupId}, packaging: ${pom.packaging}, version ${pom.version}";
+                        nexusArtifactUploader(
+                            nexusVersion: NEXUS_VERSION,
+                            protocol: NEXUS_PROTOCOL,
+                            nexusUrl: NEXUS_URL,
+                            groupId: pom.groupId,
+                            version: pom.version,
+                            repository: NEXUS_REPOSITORY,
+                            credentialsId: NEXUS_CREDENTIAL_ID,
+                            artifacts: [
+                                [artifactId: pom.artifactId,
+                                classifier: '',
+                                file: artifactPath,
+                                type: pom.packaging],
+                                [artifactId: pom.artifactId,
+                                classifier: '',
+                                file: "pom.xml",
+                                type: "pom"]
+                            ]
+                        );
+                    } else {
+                        error "*** File: ${artifactPath}, could not be found";
                     }
                 }
             }
