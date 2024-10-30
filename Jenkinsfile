@@ -4,7 +4,7 @@ pipeline {
         stage('Test Docker Access') {
             steps {
                 script {
-                    sh 'docker images'
+                    sh 'docker login'
                 }
             }
         }
