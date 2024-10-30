@@ -14,7 +14,7 @@ pipeline {
         }
         stage('Check Maven Repository Access') {
     steps {
-        sh 'curl -I http://192.168.33.11:8081/repository/maven-releases/'
+        sh 'curl -I http://192.168.33.10:8081/repository/maven-releases/'
     }
 }
 
