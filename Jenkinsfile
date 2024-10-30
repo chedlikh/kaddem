@@ -7,20 +7,16 @@ pipeline {
     }
 
     stages {
-        stage('Récupérer le code source') {
+        stage('Checkout') {
             steps {
                 // Récupération du code depuis le référentiel Git
                 git url: 'https://github.com/chedlikh/kaddem.git', branch: 'main'
             }
         }
 
-        stage('Afficher la date système') {
+       stage('Build') {
             steps {
-                // Affiche la date système
-                script {
-                    def currentDate = new Date()
-                    echo "Date système : ${currentDate}"
-                }
+                sh 'mvn clean package' // For a Maven project
             }
         }
     }
