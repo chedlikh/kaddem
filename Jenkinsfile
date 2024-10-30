@@ -75,18 +75,7 @@ pipeline {
                 }
             }
         }
-        stage ('Execute Ansible Play - CD'){
-            agent {
-                label 'ansible'
-            }
-            steps{
-                script {
-                    git branch: 'main', url: 'https://github.com/chedlikh/kaddem.git';
-                }
-                sh '''
-                    ansible-playbook -e vers=${BUILD_NUMBER} roles/site.yml
-                '''
-            }
+      
         }
     }
 }
