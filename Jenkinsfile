@@ -24,6 +24,11 @@ pipeline {
                 sh 'mvn test' // Run your tests
             }
         }
+         stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t kaddem .' // Build Docker image
+            }
+        }
     }
     
     post {
