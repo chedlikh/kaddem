@@ -1,5 +1,5 @@
 pipeline {
-    agent any
+    agent { label 'contrôleur' }
 
     triggers {
         // Configure le déclenchement basé sur des push Git
