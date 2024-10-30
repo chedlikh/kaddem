@@ -14,21 +14,12 @@ pipeline {
         }
         stage('Check Maven Repository Access') {
     steps {
-        sh 'curl -I http://192.168.33.10:8081/repository/maven-releases/'
+        sh 'curl -I http://192.168.33.10:8081/repository/maven-central-repository/'
     }
 }
 
         
-        stage('Build') {
-            steps {
-                script {
-                    // Construire le projet et déployer sur Nexus en une seule commande
-                    // Skip tests (en ajoutant -DskipTests) si besoin
-                    sh 'mvn clean deploy -DskipTests'
-                }
-            }
-        }
-    }
+      
     
     post {
         success {
