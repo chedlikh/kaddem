@@ -5,7 +5,7 @@ FROM openjdk:11
 WORKDIR /app
 
 # Copy the JAR file
-COPY target/kaddem-0.0.1-SNAPSHOT.jar app.jar 
+COPY --from=builder /app/target/kaddem-0.0.1-SNAPSHOT.jar app.jar 
 
 # Expose the application port
 EXPOSE 8090
