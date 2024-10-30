@@ -1,35 +1,44 @@
 pipeline {
-    agent any
-
-    triggers {
-        // Configure le déclenchement basé sur des push Git
-        pollSCM('H/5 * * * *') // Vérifie les changements toutes les 5 minutes
-    }
+    agent any 
 
     stages {
-        stage('Récupérer le code source') {
+        stage('Checkout') {
             steps {
-                // Récupération du code depuis le référentiel Git
-                git url: 'https://github.com/chedlikh/kaddem.git', branch: 'main'
+                git 'https://github.com/chedlikh/kaddem.git' // Replace with your repository URL
             }
         }
 
-        stage('Afficher la date système') {
+        stage('Build') {
             steps {
-                // Affiche la date système
-                script {
-                    def currentDate = new Date()
-                    echo "Date système : ${currentDate}"
-                }
+                sh 'mvn clean package' // For a Maven project
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh 'mvn test' // Run your tests
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t kaddem .' // Build Docker image
+            }
+        }
+
+        stage('Run Docker Container') {
+            steps {
+                sh 'docker run -d -p 8080:8080 kaddem' // Run Docker container
             }
         }
     }
-    
+
     post {
-        always {
-            // Optionnel : Nettoyage ou notifications
-            echo 'Fin du pipeline.'
+        success {
+            echo 'Pipeline executed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed.'
         }
     }
 }
-
