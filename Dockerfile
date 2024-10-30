@@ -1,14 +1,12 @@
-# Use an OpenJDK image as the base
-FROM openjdk:11
-
-# Set working directory
+# Stage 1: Build the application
+FROM maven:3.8.5-openjdk-11 AS builder
 WORKDIR /app
+COPY . .
+RUN mvn clean package -DskipTests
 
-# Copy the JAR file
-COPY --from=builder /app/target/kaddem-0.0.1-SNAPSHOT.jar app.jar 
-
-# Expose the application port
-EXPOSE 8090
-
-# Run the JAR file
+# Stage 2: Run the application
+FROM openjdk:11
+WORKDIR /app
+COPY --from=builder /app/target/kaddem-0.0.1-SNAPSHOT.jar app.jar
+EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
