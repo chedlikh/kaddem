@@ -10,7 +10,7 @@ services:
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/votrebase
       SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_DATASOURCE_PASSWORD:
     depends_on:
       - db  # Makes sure MySQL starts first
 
@@ -21,8 +21,8 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD:
       MYSQL_DATABASE: votrebase
-      MYSQL_USER: root
-      MYSQL_PASSWORD: root
+      MYSQL_USER: user
+      MYSQL_PASSWORD:
     volumes:
       - db_data:/var/lib/mysql
 
