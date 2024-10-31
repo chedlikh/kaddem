@@ -1,15 +1,21 @@
 pipeline {
     agent any
     options {
-      buildDiscarder(logRotator(numToKeepStr: '5'))
+        buildDiscarder(logRotator(numToKeepStr: '5'))
     }
     stages {
         stage("Check out") {
             steps {
-                 withSonarQubeEnv(installationName: 'sq1') {
-                     sh'.mvnw clean org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.0.2155:sonar'
-                   }
+                script {
+                    if (!fileExists('.mvnw')) {
+                        error "The Maven wrapper (.mvnw) file was not found in the workspace."
+                    }
+                }
+                withSonarQubeEnv('sq1') {
+                    sh 'chmod +x .mvnw'  // Assurez-vous que le fichier est exécutable
+                    sh './mvnw clean org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.0.2155:sonar'
                 }
             }
         }
+    }
 }
