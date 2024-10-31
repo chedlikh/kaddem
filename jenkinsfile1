@@ -3,17 +3,14 @@ pipeline {
     options {
         buildDiscarder(logRotator(numToKeepStr: '5'))
     }
+    tools {
+        maven 'M2_HOME' // Assurez-vous que ce nom correspond à l'installation Maven configurée dans Jenkins
+    }
     stages {
         stage("Check out") {
             steps {
-                script {
-                    if (!fileExists('.mvnw')) {
-                        error "The Maven wrapper (.mvnw) file was not found in the workspace."
-                    }
-                }
                 withSonarQubeEnv('sq1') {
-                    sh 'chmod +x .mvnw'  // Assurez-vous que le fichier est exécutable
-                    sh './mvnw clean org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.0.2155:sonar'
+                    sh 'mvn clean org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.0.2155:sonar'
                 }
             }
         }
