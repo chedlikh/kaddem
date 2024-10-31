@@ -4,15 +4,35 @@ pipeline {
         buildDiscarder(logRotator(numToKeepStr: '5'))
     }
     tools {
-        maven 'M2_HOME' // Assurez-vous que ce nom correspond à l'installation Maven configurée dans Jenkins
+        maven 'maven' // Utilisez le nom de l'installation Maven configurée dans Jenkins
     }
     stages {
-        stage("Check out") {
+        stage("Checkout") {
+            steps {
+                checkout scm
+            }
+        }
+        
+        stage("Clean & Compile") {
+            steps {
+                sh 'mvn clean compile'
+            }
+        }
+
+        stage("SonarQube Analysis") {
             steps {
                 withSonarQubeEnv('sq1') {
-                    sh 'mvn clean org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.0.2155:sonar'
+                    sh 'mvn sonar:sonar'
                 }
             }
+        }
+    }
+    post {
+        always {
+            echo 'Pipeline terminé.'
+        }
+        failure {
+            echo 'Échec du pipeline.'
         }
     }
 }
