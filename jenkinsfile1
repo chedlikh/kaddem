@@ -4,7 +4,7 @@ pipeline {
         buildDiscarder(logRotator(numToKeepStr: '5'))
     }
     tools {
-        maven 'maven' // Utilisez le nom de l'installation Maven configurée dans Jenkins
+        maven 'M2_HOME' // Utilisez le nom de l'installation Maven configurée dans Jenkins
     }
     stages {
         stage("Checkout") {
