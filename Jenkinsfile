@@ -1,5 +1,5 @@
 pipeline {
-     agent { label 'slave02' }
+     agent any
     tools {
         maven "M2_HOME"
     }
