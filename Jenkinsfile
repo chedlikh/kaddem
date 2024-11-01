@@ -4,6 +4,9 @@ pipeline {
     tools {
         maven "M2_HOME"
     }
+     options {
+            buildDiscarder(logRotator(numToKeepStr: '5'))
+        }
 
     environment {
         // This can be nexus3 or nexus2
@@ -24,6 +27,7 @@ pipeline {
             steps {
                 script {
                     git branch: 'chedli', url: 'https://github.com/chedlikh/kaddem.git';
+                    checkout scm;
                 }
             }
         }
@@ -31,7 +35,7 @@ pipeline {
        stage("mvn build") {
            steps {
                script {
-                   sh "mvn clean package"
+                   sh "mvn clean compile package"
                    sh "ls -la target" // List contents of target directory
                }
            }
@@ -78,6 +82,21 @@ pipeline {
                 }
             }
         }
+        stage("SonarQube Analysis") {
+                    steps {
+                        withSonarQubeEnv('sq1') {
+                            sh 'mvn sonar:sonar'
+                        }
+                    }
+                }
+                 stage("Quality Gate") {
+                            steps {
+                                timeout(time: 2, unit: 'MINUTES'){
+                                  waitForQualityGate abortPipeline: true
+                                  }
+                                }
+                            }
+
 
 
     }
