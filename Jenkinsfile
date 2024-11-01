@@ -90,7 +90,7 @@ pipeline {
                 script {
                     def artifactGroup = 'tn.esprit.spring'
                     def artifactName = 'kaddem'
-                    def artifactVersion = v2.0
+                    def artifactVersion = 'v2.0'
                     def artifactExtension = 'jar'
 
                     def nexusArtifactURL = "${NEXUS_PROTOCOL}://${NEXUS_URL}/repository/${NEXUS_REPOSITORY}/${artifactGroup.replace('.', '/')}/${artifactName}/${artifactVersion}/${artifactName}-${artifactVersion}.${artifactExtension}"
