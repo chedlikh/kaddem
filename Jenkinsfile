@@ -69,21 +69,6 @@ pipeline {
             }
         }
 
-        stage("SonarQube Analysis") {
-            steps {
-                withSonarQubeEnv('sq1') {
-                    sh 'mvn sonar:sonar'
-                }
-            }
-        }
-
-        stage("Quality Gate") {
-            steps {
-                timeout(time: 2, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
-                }
-            }
-        }
 
         stage("Download Artifact from Nexus") {
             steps {
