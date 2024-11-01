@@ -28,13 +28,15 @@ pipeline {
             }
         }
 
-        stage("mvn build") {
-            steps {
-                script {
-                    sh "mvn clean package"
-                }
-            }
-        }
+       stage("mvn build") {
+           steps {
+               script {
+                   sh "mvn clean package"
+                   sh "ls -la target" // List contents of target directory
+               }
+           }
+       }
+
 
         stage("publish to nexus") {
             steps {
