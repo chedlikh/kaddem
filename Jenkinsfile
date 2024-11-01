@@ -126,7 +126,7 @@ pipeline {
                         docker ps -q --filter "name=kaddemc" | grep -q . && docker stop kaddemc || true
                         docker rm kaddemc || true
                     """
-                    sh "docker run -d --name kaddemc -p 8096:8096 ${DOCKER_IMAGE}:${DOCKER_TAG}"
+                    sh "docker run -d --name kaddemc -p 8089:8089 ${DOCKER_IMAGE}:${DOCKER_TAG}"
                 }
             }
         }
