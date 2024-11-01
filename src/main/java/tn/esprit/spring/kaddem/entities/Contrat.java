@@ -1,8 +1,6 @@
 package tn.esprit.spring.kaddem.entities;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -13,6 +11,8 @@ import javax.persistence.*;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 public class Contrat implements Serializable{
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)

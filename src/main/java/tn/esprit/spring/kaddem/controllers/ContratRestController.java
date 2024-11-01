@@ -2,6 +2,7 @@ package tn.esprit.spring.kaddem.controllers;
 
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import tn.esprit.spring.kaddem.dto.ContratDTO;
 import tn.esprit.spring.kaddem.entities.Contrat;
 import tn.esprit.spring.kaddem.services.IContratService;
 import java.util.List;
@@ -25,9 +26,11 @@ public class ContratRestController {
 
 	// http://localhost:8089/Kaddem/econtrat/add-contrat
 	@PostMapping("/add-contrat")
-	public Contrat addContrat(@RequestBody Contrat c) {
+	public Contrat addContrat(@RequestBody ContratDTO c) {
 		return contratService.addContrat(c);
 	}
+
+
 
 	// http://localhost:8089/Kaddem/contrat/remove-contrat/1
 	@DeleteMapping("/remove-contrat/{contrat-id}")
@@ -37,9 +40,10 @@ public class ContratRestController {
 
 	// http://localhost:8089/Kaddem/contrat/update-contrat
 	@PutMapping("/update-contrat")
-	public Contrat updateContrat(@RequestBody Contrat c) {
+	public Contrat updateContrat(@RequestBody ContratDTO c) {
 		return contratService.updateContrat(c);
 	}
+
 }
 
 
