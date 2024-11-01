@@ -13,7 +13,7 @@ public class Equipe implements Serializable{
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Integer idEquipe;
     private String nomEquipe;
-    private String test;
+
     @Enumerated(EnumType.STRING)
     private Niveau niveau;
     //@ManyToMany(mappedBy="equipes")
