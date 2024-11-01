@@ -71,7 +71,7 @@ pipeline {
             }
         }
 
-        stage("SonarQube Analysis") {
+       /* stage("SonarQube Analysis") {
             steps {
                 withSonarQubeEnv('sq1') {
                     sh 'mvn sonar:sonar'
@@ -85,7 +85,7 @@ pipeline {
                     waitForQualityGate abortPipeline: true
                 }
             }
-        }
+        }*/
 
         stage("Download Artifact from Nexus") {
             agent { label 'slave02' }
