@@ -1,47 +1,70 @@
-
 pipeline {
     agent any
-    options {
-        buildDiscarder(logRotator(numToKeepStr: '5'))
+
+    triggers {
+        // Configure le déclenchement basé sur des push Git
+        pollSCM('H/5 * * * *') // Vérifie les changements toutes les 5 minutes
     }
-    tools {
-        maven 'M2_HOME' // Utilisez le nom de l'installation Maven configurée dans Jenkins
-    }
+
     stages {
-        stage("Checkout") {
+        stage('Checkout') {
             steps {
-                checkout scm
+                // Récupération du code depuis le référentiel Git
+                git url: 'https://github.com/chedlikh/kaddem.git', branch: 'chedli'
             }
         }
 
-        stage("Clean & Compile") {
+        stage('Build') {
             steps {
-                sh 'mvn clean compile'
+                sh 'mvn clean package' // For a Maven project
             }
         }
 
-        stage("SonarQube Analysis") {
+        stage('Test') {
             steps {
-                withSonarQubeEnv('sq1') {
-                    sh 'mvn sonar:sonar'
+                sh 'mvn test' // Run your tests
+            }
+        }
+
+        stage('Docker Login') {
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'docker-hub-creds', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                        sh "echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin"
+                    }
                 }
             }
         }
-         stage("Quality Gate") {
-                    steps {
-                        timeout(time: 2, unit: 'MINUTES'){
-                          waitForQualityGate abortPipeline: true
-                          }
-                        }
-                    }
 
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    def imageName = 'chedli1/kaddem' // Replace with your Docker Hub username and repository name
+                    def imageTag = 'latest' // You can modify this to use a different tag if needed
+
+                    // Build the Docker image
+                    sh "docker build -t ${imageName}:${imageTag} ."
+                }
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    def imageName = 'chedli1/kaddem' // Replace with your Docker Hub username and repository name
+                    def imageTag = 'latest' // Ensure this matches the tag used during the build
+
+                    // Push the Docker image to Docker Hub
+                    sh "docker push ${imageName}:${imageTag}"
+                }
+            }
+        }
     }
+
     post {
         always {
-            echo 'Pipeline terminé.'
-        }
-        failure {
-            echo 'Échec du pipeline.'
+            // Optionnel : Nettoyage ou notifications
+            echo 'Fin du pipeline.'
         }
     }
 }

@@ -1,11 +1,13 @@
-# Use an official Java runtime as a parent image
-FROM openjdk:11
 
-# Set the working directory
+# Stage 1: Build the application
+FROM maven:3.8.5-openjdk-11 AS builder
 WORKDIR /app
+COPY . .
+RUN mvn clean package -DskipTests
 
-# Copy the built artifact from the Maven build stage
-COPY target/kaddem-${BUILD_NUMBER}.jar app.jar
-
-# Run the application
-CMD ["java", "-jar", "app.jar"]
+# Stage 2: Run the application
+FROM openjdk:11
+WORKDIR /app
+COPY --from=builder /app/target/kaddem-0.0.1-SNAPSHOT.jar app.jar
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "app.jar"]
