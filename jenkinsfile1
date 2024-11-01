@@ -1,5 +1,8 @@
 pipeline {
     agent any
+    tools {
+            maven "M2_HOME"
+        }
 
     triggers {
         // Configure le déclenchement basé sur des push Git
