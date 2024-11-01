@@ -4,11 +4,7 @@ pipeline {
             maven "M2_HOME"
         }
 
-    triggers {
-        // Configure le déclenchement basé sur des push Git
-        pollSCM('H/5 * * * *') // Vérifie les changements toutes les 5 minutes
-    }
-
+  
     stages {
         stage('Checkout') {
             steps {
