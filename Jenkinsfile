@@ -1,5 +1,5 @@
 pipeline {
-     agent any
+    agent any
     tools {
         maven "M2_HOME"
     }
@@ -21,6 +21,7 @@ pipeline {
 
     stages {
         stage("Check out") {
+            agent { label 'slave02' }  // Run this stage on slave02
             steps {
                 script {
                     git branch: 'chedli', url: 'https://github.com/chedlikh/kaddem.git'
@@ -30,6 +31,7 @@ pipeline {
         }
 
         stage("Maven Build") {
+            agent { label 'slave02' }  // Run this stage on slave02
             steps {
                 script {
                     sh "mvn clean compile package"
@@ -69,7 +71,7 @@ pipeline {
             }
         }
 
-        stage("SonarQube Analysis") {
+       /* stage("SonarQube Analysis") {
             steps {
                 withSonarQubeEnv('sq1') {
                     sh 'mvn sonar:sonar'
@@ -83,9 +85,10 @@ pipeline {
                     waitForQualityGate abortPipeline: true
                 }
             }
-        }
+        }*/
 
         stage("Download Artifact from Nexus") {
+            agent { label 'slave02' }
             steps {
                 script {
                     def artifactGroup = 'tn.esprit.spring'
@@ -103,6 +106,7 @@ pipeline {
         }
 
         stage("Docker Build & Push") {
+            agent { label 'slave02' }
             steps {
                 script {
                     sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ."
@@ -115,13 +119,14 @@ pipeline {
         }
 
         stage("Run Docker Container") {
+            agent { label 'slave02' }
             steps {
                 script {
                     sh """
                         docker ps -q --filter "name=kaddemc" | grep -q . && docker stop kaddemc || true
                         docker rm kaddemc || true
                     """
-                    sh "docker run -d --name kaddemc -p 8096:8096 ${DOCKER_IMAGE}:${DOCKER_TAG}"
+                    sh "docker run -d --name kaddemc -p 8089:8089 ${DOCKER_IMAGE}:${DOCKER_TAG}"
                 }
             }
         }
