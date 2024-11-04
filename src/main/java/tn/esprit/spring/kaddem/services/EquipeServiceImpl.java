@@ -74,7 +74,7 @@ public class EquipeServiceImpl implements IEquipeService {
 			if (equipe.getNiveau() == Niveau.JUNIOR || equipe.getNiveau() == Niveau.SENIOR) {
 				log.debug("Evaluating team: {}", equipe.getIdEquipe());
 
-				List<Etudiant> etudiants = new ArrayList<>((Collection<Etudiant>) equipe.getEtudiants());
+				List<Etudiant> etudiants = new ArrayList<>(equipe.getEtudiants());
 				if (etudiants == null || etudiants.isEmpty()) {
 					log.warn("No students found in team: {}", equipe.getIdEquipe());
 					continue; // Skip to the next team
@@ -91,7 +91,7 @@ public class EquipeServiceImpl implements IEquipeService {
 
 						for (Contrat contrat : contrats) {
 							log.debug("Checking contract: {}", contrat.getIdContrat());
-							if (!contrat.getArchive() && isContractActive(contrat, dateSysteme)) {
+							if (!contrat.getArchive() && dateSysteme.getTime() - contrat.getDateFinContrat().getTime() > (1000L * 60 * 60 * 24 * 365)) {
 								nbEtudiantsAvecContratsActifs++;
 								log.debug("Active contract found for student: {}", etudiant.getIdEtudiant());
 								break; // Stop checking contracts for this student
@@ -114,9 +114,9 @@ public class EquipeServiceImpl implements IEquipeService {
 	}
 
 	private boolean isContractActive(Contrat contrat, Date dateSysteme) {
-		long difference_In_Time = dateSysteme.getTime() - contrat.getDateFinContrat().getTime();
-		long difference_In_Years = difference_In_Time / (1000L * 60 * 60 * 24 * 365);
-		return difference_In_Years > 1;
+		long differenceInTime = dateSysteme.getTime() - contrat.getDateFinContrat().getTime();
+		long differenceInYears = differenceInTime / (1000L * 60 * 60 * 24 * 365);
+		return differenceInYears > 1;
 	}
 
 	private void upgradeTeam(Equipe equipe) {
