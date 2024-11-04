@@ -18,7 +18,7 @@ services:
     ports:
       - "8089:8089"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://192.168.33.10:3307/kaddemdb
+      SPRING_DATASOURCE_URL: jdbc:mysql://192.168.33.11:3307/kaddemdb
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
     depends_on:
