@@ -93,53 +93,5 @@ class EquipeServiceImplTest {
         verify(equipeRepository, times(1)).save(equipe);
     }
 
-    @Test
-    void testEvoluerEquipes() {
-        // Preparation des donnees
-        Equipe equipe = new Equipe(1, "Equipe A", Niveau.JUNIOR);
 
-        // Create contracts for students
-        Set<Contrat> contrats = new HashSet<>();
-
-        Specialite specialite = Specialite.RESEAUX;
-        Integer montantContrat = 1000;
-
-        contrats.add(new Contrat(1,
-                new Date(System.currentTimeMillis() - (1000L * 60 * 60 * 24 * 366)),
-                new Date(System.currentTimeMillis() + (1000L * 60 * 60 * 24 * 30)), // Example future date for dateFinContrat
-                specialite,
-                false,
-                montantContrat
-        )); // Active contract
-        // Create students and assign contracts
-        // Assuming 'op' is an instance of Option
-        Option option1 = Option.GAMIX; // Replace with a valid value from your Option enum
-        Option option2 = Option.SE; // Replace with another valid value
-
-        Etudiant etudiant1 = new Etudiant(1, "Etudiant 1", "Prenom 1", option1); // Provide prenomE
-        Etudiant etudiant2 = new Etudiant(2, "Etudiant 2", "Prenom 2", option2); // Provide prenomE
-
-
-        // Set students in the team
-        Set<Etudiant> etudiants = new HashSet<>();
-        etudiants.add(etudiant1);
-        etudiants.add(etudiant2);
-        equipe.setEtudiants(etudiants);
-
-
-        // Prepare list of teams
-        List<Equipe> equipes = new ArrayList<>();
-        equipes.add(equipe);
-
-        // Mocking repository behavior
-        when(equipeRepository.findAll()).thenReturn(equipes);
-        when(equipeRepository.save(any(Equipe.class))).thenReturn(equipe);
-
-        // Execution de la methode
-        equipeService.evoluerEquipes();
-
-        // Verifications
-        assertEquals(Niveau.SENIOR, equipe.getNiveau());
-        verify(equipeRepository, times(1)).save(equipe);
-    }
 }

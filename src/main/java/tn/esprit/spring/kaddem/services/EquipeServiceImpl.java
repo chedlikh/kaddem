@@ -68,57 +68,70 @@ public class EquipeServiceImpl implements IEquipeService {
 
 		// Convert the result of findAll() to a List
 		List<Equipe> equipes = new ArrayList<>((Collection<Equipe>) equipeRepository.findAll());
-
 		log.debug("Total teams to evaluate: {}", equipes.size());
 
 		for (Equipe equipe : equipes) {
-			if (equipe.getNiveau().equals(Niveau.JUNIOR) || equipe.getNiveau().equals(Niveau.SENIOR)) {
+			if (equipe.getNiveau() == Niveau.JUNIOR || equipe.getNiveau() == Niveau.SENIOR) {
 				log.debug("Evaluating team: {}", equipe.getIdEquipe());
 
-				// Ensure etudiants is handled correctly
 				List<Etudiant> etudiants = new ArrayList<>((Collection<Etudiant>) equipe.getEtudiants());
+				if (etudiants == null || etudiants.isEmpty()) {
+					log.warn("No students found in team: {}", equipe.getIdEquipe());
+					continue; // Skip to the next team
+				}
+
 				int nbEtudiantsAvecContratsActifs = 0;
 
 				for (Etudiant etudiant : etudiants) {
 					log.debug("Checking student: {}", etudiant.getIdEtudiant());
 					Set<Contrat> contrats = etudiant.getContrats();
-					Date dateSysteme = new Date();
 
-					for (Contrat contrat : contrats) {
-						log.debug("Checking contract: {}", contrat.getIdContrat());
-						long difference_In_Time = dateSysteme.getTime() - contrat.getDateFinContrat().getTime();
-						long difference_In_Years = (difference_In_Time / (1000L * 60 * 60 * 24 * 365));
+					if (contrats != null) {
+						Date dateSysteme = new Date();
 
-						if (!contrat.getArchive() && difference_In_Years > 1) {
-							nbEtudiantsAvecContratsActifs++;
-							log.debug("Active contract found for student: {}", etudiant.getIdEtudiant());
-							break;
+						for (Contrat contrat : contrats) {
+							log.debug("Checking contract: {}", contrat.getIdContrat());
+							if (!contrat.getArchive() && isContractActive(contrat, dateSysteme)) {
+								nbEtudiantsAvecContratsActifs++;
+								log.debug("Active contract found for student: {}", etudiant.getIdEtudiant());
+								break; // Stop checking contracts for this student
+							}
 						}
 					}
 
 					if (nbEtudiantsAvecContratsActifs >= 3) {
-						break;
+						break; // No need to check further students
 					}
 				}
 
 				if (nbEtudiantsAvecContratsActifs >= 3) {
-					log.info("Team {} meets the criteria for evolution.", equipe.getIdEquipe());
-
-					if (equipe.getNiveau().equals(Niveau.JUNIOR)) {
-						equipe.setNiveau(Niveau.SENIOR);
-						log.info("Team {} upgraded from JUNIOR to SENIOR.", equipe.getIdEquipe());
-					} else if (equipe.getNiveau().equals(Niveau.SENIOR)) {
-						equipe.setNiveau(Niveau.EXPERT);
-						log.info("Team {} upgraded from SENIOR to EXPERT.", equipe.getIdEquipe());
-					}
-
-					equipeRepository.save(equipe);
-					log.debug("Team {} updated in the repository.", equipe.getIdEquipe());
+					upgradeTeam(equipe);
 				}
 			}
 		}
 
 		log.info("Team evolution process completed.");
+	}
+
+	private boolean isContractActive(Contrat contrat, Date dateSysteme) {
+		long difference_In_Time = dateSysteme.getTime() - contrat.getDateFinContrat().getTime();
+		long difference_In_Years = difference_In_Time / (1000L * 60 * 60 * 24 * 365);
+		return difference_In_Years > 1;
+	}
+
+	private void upgradeTeam(Equipe equipe) {
+		log.info("Team {} meets the criteria for evolution.", equipe.getIdEquipe());
+
+		if (equipe.getNiveau() == Niveau.JUNIOR) {
+			equipe.setNiveau(Niveau.SENIOR);
+			log.info("Team {} upgraded from JUNIOR to SENIOR.", equipe.getIdEquipe());
+		} else if (equipe.getNiveau() == Niveau.SENIOR) {
+			equipe.setNiveau(Niveau.EXPERT);
+			log.info("Team {} upgraded from SENIOR to EXPERT.", equipe.getIdEquipe());
+		}
+
+		equipeRepository.save(equipe);
+		log.debug("Team {} updated in the repository.", equipe.getIdEquipe());
 	}
 
 }
