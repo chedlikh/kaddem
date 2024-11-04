@@ -1,22 +1,26 @@
 pipeline {
     agent any
     tools {
-        maven "M2_HOME"
+        maven "M2_HOME"  // Specify the Maven tool version
     }
     options {
-        buildDiscarder(logRotator(numToKeepStr: '5'))
+        buildDiscarder(logRotator(numToKeepStr: '5'))  // Keep the last 5 builds
     }
 
     environment {
+        // Environment variables for Nexus
         NEXUS_VERSION = "nexus3"
         NEXUS_PROTOCOL = "http"
         NEXUS_URL = "192.168.33.10:8081"
         NEXUS_REPOSITORY = "maven-central-repository"
         NEXUS_CREDENTIAL_ID = "NEXUS_CRED"
         ARTIFACT_VERSION = "${BUILD_NUMBER}"
+
+        // Environment variables for Docker
         DOCKER_CREDENTIALS_ID = "docker-hub-creds"
         DOCKER_IMAGE = "chedli1/kaddem"
         DOCKER_TAG = "v1.0.0-${BUILD_NUMBER}"
+        DOCKER_COMPOSE_FILE = "docker-compose.yml"  // Specify your Docker Compose file
     }
 
     stages {
@@ -25,7 +29,6 @@ pipeline {
             steps {
                 script {
                     git branch: 'chedli', url: 'https://github.com/chedlikh/kaddem.git'
-                    checkout scm
                 }
             }
         }
@@ -34,8 +37,8 @@ pipeline {
             agent { label 'slave02' }  // Run this stage on slave02
             steps {
                 script {
-                    sh "mvn clean compile package"
-                    sh "ls -la target" // List contents of target directory
+                    sh "mvn clean compile package"  // Clean and build the project
+                    sh "ls -la target"              // List contents of target directory
                 }
             }
         }
@@ -43,14 +46,13 @@ pipeline {
         stage("Publish to Nexus") {
             steps {
                 script {
-                    pom = readMavenPom file: "pom.xml"
-                    filesByGlob = findFiles(glob: "target/*.${pom.packaging}")
-                    echo "${filesByGlob[0].name} ${filesByGlob[0].path} ${filesByGlob[0].directory} ${filesByGlob[0].length} ${filesByGlob[0].lastModified}"
-                    artifactPath = filesByGlob[0].path
-                    artifactExists = fileExists artifactPath
+                    def pom = readMavenPom file: "pom.xml"
+                    def filesByGlob = findFiles(glob: "target/*.${pom.packaging}")
+                    def artifactPath = filesByGlob[0]?.path  // Safe access with optional chaining
+                    def artifactExists = fileExists(artifactPath)
 
                     if (artifactExists) {
-                        echo "*** File: ${artifactPath}, group: ${pom.groupId}, packaging: ${pom.packaging}, version ${pom.version}"
+                        echo "*** Publishing artifact: ${artifactPath}, group: ${pom.groupId}, packaging: ${pom.packaging}, version: ${pom.version}"
 
                         nexusArtifactUploader(
                             nexusVersion: NEXUS_VERSION,
@@ -74,7 +76,7 @@ pipeline {
         stage("SonarQube Analysis") {
             steps {
                 withSonarQubeEnv('sq1') {
-                    sh 'mvn sonar:sonar'
+                    sh 'mvn sonar:sonar'  // Run SonarQube analysis
                 }
             }
         }
@@ -82,7 +84,7 @@ pipeline {
         stage("Quality Gate") {
             steps {
                 timeout(time: 2, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
+                    waitForQualityGate abortPipeline: true  // Wait for the quality gate
                 }
             }
         }
@@ -98,35 +100,33 @@ pipeline {
 
                     def nexusArtifactURL = "${NEXUS_PROTOCOL}://${NEXUS_URL}/repository/${NEXUS_REPOSITORY}/${artifactGroup.replace('.', '/')}/${artifactName}/${artifactVersion}/${artifactName}-${artifactVersion}.${artifactExtension}"
 
-                    withCredentials([usernamePassword(credentialsId: "${NEXUS_CREDENTIAL_ID}", passwordVariable: 'NEXUS_PASSWORD', usernameVariable: 'NEXUS_USERNAME')]) {
-                        sh "curl -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} -o ${artifactName}.jar ${nexusArtifactURL}"
+                    withCredentials([usernamePassword(credentialsId: NEXUS_CREDENTIAL_ID, passwordVariable: 'NEXUS_PASSWORD', usernameVariable: 'NEXUS_USERNAME')]) {
+                        sh "curl -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} -o ${artifactName}.jar ${nexusArtifactURL}"  // Download the artifact
                     }
                 }
             }
         }
 
-        stage("Docker Build & Push") {
+        stage("Docker Compose Build & Push") {
             agent { label 'slave02' }
             steps {
                 script {
-                    sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ."
-                    withCredentials([usernamePassword(credentialsId: "${DOCKER_CREDENTIALS_ID}", passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
-                        sh "echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin"
+                    // Build and push images using Docker Compose
+                    sh "docker-compose -f ${DOCKER_COMPOSE_FILE} build"  // Build images
+                    withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
+                        sh "echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin"  // Log in to Docker Hub
                     }
-                    sh "docker push ${DOCKER_IMAGE}:${DOCKER_TAG}"
+                    sh "docker-compose -f ${DOCKER_COMPOSE_FILE} push"  // Push images to Docker Hub
                 }
             }
         }
 
-        stage("Run Docker Container") {
+        stage("Run Docker Compose") {
             agent { label 'slave02' }
             steps {
                 script {
-                    sh """
-                        docker ps -q --filter "name=kaddemc" | grep -q . && docker stop kaddemc || true
-                        docker rm kaddemc || true
-                    """
-                    sh "docker run -d --name kaddemc -p 8089:8089 ${DOCKER_IMAGE}:${DOCKER_TAG}"
+                    // Run Docker Compose to start the containers
+                    sh "docker-compose -f ${DOCKER_COMPOSE_FILE} up -d"  // Start containers in detached mode
                 }
             }
         }
@@ -134,10 +134,10 @@ pipeline {
 
     post {
         always {
-            echo 'Pipeline terminé.'
+            echo 'Pipeline terminé.'  // Print message at the end of the pipeline
         }
         failure {
-            echo 'Échec du pipeline.'
+            echo 'Échec du pipeline.'  // Print message on failure
         }
     }
 }

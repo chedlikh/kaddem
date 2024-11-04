@@ -1,31 +1,30 @@
-
 version: '3.8'
 
 services:
+  mysql:
+    image: mysql:5.7
+    environment:
+      MYSQL_DATABASE: kaddemdb
+      MYSQL_ROOT_PASSWORD:
+    ports:
+      - "3307:3306"
+    networks:
+      - app-network
+
   app:
     build:
-      context: .  # Dockerfile directory
-    image: kaddem:latest  # Customize the name if needed
+      context: .
+      dockerfile: Dockerfile
     ports:
-      - "8080:8080"
+      - "8089:8089"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/votrebase
+      SPRING_DATASOURCE_URL: jdbc:mysql://192.168.33.10:3307/kaddemdb
       SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD:
+      SPRING_DATASOURCE_PASSWORD: root
     depends_on:
-      - db  # Makes sure MySQL starts first
+      - mysql
+    networks:
+      - app-network
 
-  db:
-    image: mysql:8.0
-    ports:
-      - "3306:3306"
-    environment:
-      MYSQL_ROOT_PASSWORD:
-      MYSQL_DATABASE: votrebase
-      MYSQL_USER: user
-      MYSQL_PASSWORD:
-    volumes:
-      - db_data:/var/lib/mysql
-
-volumes:
-  db_data:
+networks:
+  app-network:
