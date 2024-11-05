@@ -7,7 +7,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: kaddemdb
-     
+
     ports:
       - "3307:3306"  # Map MySQL port to host
     networks:

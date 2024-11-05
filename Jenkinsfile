@@ -23,7 +23,7 @@ pipeline {
         DOCKER_COMPOSE_FILE = "docker-compose.yml"  // Specify your Docker Compose file
     }
 
-    stages {
+   /* stages {
         stage("Check out") {
             agent { label 'slave02' }  // Run this stage on slave02
             steps {
@@ -88,7 +88,7 @@ pipeline {
 
             }
         }
-
+*/
         stage("Download Artifact from Nexus") {
             agent { label 'slave02' }
             steps {
