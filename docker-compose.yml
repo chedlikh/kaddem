@@ -2,15 +2,15 @@ version: '3.8'
 
 services:
   mysql:
-    image: mysql
+    image: mysql:latest
     container_name: mysqldb
     environment:
-      MYSQL_ROOT_PASSWORD: 
+      MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: kaddemdb
       MYSQL_USER: root
       MYSQL_PASSWORD: root
     ports:
-      - "3307:3306"
+      - "3307:3306"  # Map MySQL port to host
     networks:
       - app-network
 
@@ -21,7 +21,7 @@ services:
     ports:
       - "8089:8089"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://192.168.33.11:3307/kaddemdb
+      SPRING_DATASOURCE_URL: jdbc:mysql://192.168.33.11:3307/kaddemdb  # Use service name for connection
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
     depends_on:
