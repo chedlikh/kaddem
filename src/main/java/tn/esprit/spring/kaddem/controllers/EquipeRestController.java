@@ -2,10 +2,11 @@ package tn.esprit.spring.kaddem.controllers;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
+import tn.esprit.spring.kaddem.dto.EquipeDTO;
 import tn.esprit.spring.kaddem.entities.Equipe;
+import tn.esprit.spring.kaddem.entities.Niveau;
 import tn.esprit.spring.kaddem.services.IEquipeService;
 
 import java.util.List;
@@ -30,10 +31,15 @@ public class EquipeRestController {
 	}
 
 	// http://localhost:8089/Kaddem/equipe/add-equipe
+
 	@PostMapping("/add-equipe")
-	public Equipe addEquipe(@RequestBody Equipe e) {
-		Equipe equipe = equipeService.addEquipe(e);
-		return equipe;
+	public EquipeDTO addEquipe(@RequestBody EquipeDTO equipeDTO) {
+		Equipe equipe = new Equipe();
+		equipe.setNomEquipe(equipeDTO.getNomEquipe());
+		equipe.setNiveau(Niveau.valueOf(String.valueOf(equipeDTO.getNiveau()))); // Convert string to Niveau enum
+
+		Equipe savedEquipe = equipeService.addEquipe(equipe);
+		return new EquipeDTO(savedEquipe.getIdEquipe(), savedEquipe.getNomEquipe(), savedEquipe.getNiveau());
 	}
 
 	// http://localhost:8089/Kaddem/equipe/remove-equipe/1
@@ -44,16 +50,24 @@ public class EquipeRestController {
 
 	// http://localhost:8089/Kaddem/equipe/update-equipe
 	@PutMapping("/update-equipe")
-	public Equipe updateEtudiant(@RequestBody Equipe e) {
-		Equipe equipe= equipeService.updateEquipe(e);
-		return equipe;
+	public EquipeDTO updateEquipe(@RequestBody EquipeDTO equipeDTO) {
+		// Convert DTO to entity
+		Equipe equipe = new Equipe();
+		equipe.setIdEquipe(equipeDTO.getIdEquipe());
+		equipe.setNomEquipe(equipeDTO.getNomEquipe());
+
+		// Directly set the Niveau enum
+		equipe.setNiveau(equipeDTO.getNiveau());
+
+		// Call the service to update the entity
+		Equipe updatedEquipe = equipeService.updateEquipe(equipe);
+
+		// Convert back to DTO to return
+		return new EquipeDTO(updatedEquipe.getIdEquipe(), updatedEquipe.getNomEquipe(), updatedEquipe.getNiveau());
 	}
 
-	@Scheduled(cron="0 0 13 * * *")
-	@PutMapping("/faireEvoluerEquipes")
-	public void faireEvoluerEquipes() {
-		 equipeService.evoluerEquipes() ;
-	}
+
+	
 }
 
 

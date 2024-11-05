@@ -25,7 +25,7 @@ public class Equipe implements Serializable{
     private DetailEquipe detailEquipe;
 
     public Equipe() {
-        // TODO Auto-generated constructor stub
+
     }
 
     public Equipe(String nomEquipe) {
