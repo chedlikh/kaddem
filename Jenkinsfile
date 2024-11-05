@@ -32,7 +32,7 @@ pipeline {
                 }
             }
         }
-
+/*
         stage("Maven Build") {
             agent { label 'slave02' }  // Run this stage on slave02
             steps {
@@ -71,7 +71,7 @@ pipeline {
                     }
                 }
             }
-        }
+        }*/
 /*
         stage("SonarQube Analysis") {
             steps {
