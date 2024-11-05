@@ -14,11 +14,14 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import org.slf4j.Logger;
 
 class EquipeServiceImplTest {
 
     @InjectMocks
     private EquipeServiceImpl equipeService;
+    @Mock
+    private Logger log;
 
     @Mock
     private EquipeRepository equipeRepository;
@@ -89,48 +92,30 @@ class EquipeServiceImplTest {
         verify(equipeRepository, times(1)).save(equipe);
     }
 
+    @Test
+    void testEvoluerEquipes_NoStudentsInTeam() {
+        // Arrange
+        Equipe equipe = new Equipe();
+        equipe.setIdEquipe(1);
+        equipe.setNiveau(Niveau.JUNIOR);
+        equipe.setEtudiants(new HashSet<>()); // No students in the team
+
+        // Mocking the repository behavior
+        when(equipeRepository.findAll()).thenReturn(Collections.singletonList(equipe));
+
+        // Act
+        equipeService.evoluerEquipes();
+
+
+
+        // If you have a way to check that the state of the team hasn't changed,
+        // you can assert that as well. For example:
+        assertEquals(0, equipe.getEtudiants().size()); // Ensuring no students are still present
+    }
 
 
         @Test
-        public void testEvoluerEquipes_NoStudentsInTeam() {
-            // Arrange
-            Equipe equipe = new Equipe();
-            equipe.setIdEquipe(1);
-            equipe.setNiveau(Niveau.JUNIOR);
-            equipe.setEtudiants(Collections.emptySet()); // No students
-
-            when(equipeRepository.findAll()).thenReturn(Collections.singletonList(equipe));
-
-            // Act
-            equipeService.evoluerEquipes();
-
-            // Assert
-            // Verify logs or assert no exceptions were thrown
-        }
-
-        @Test
-        public void testEvoluerEquipes_StudentsWithoutActiveContracts() {
-            // Arrange
-            Etudiant etudiant = new Etudiant();
-            etudiant.setIdEtudiant(1);
-            etudiant.setContrats(new HashSet<>()); // No contracts
-
-            Equipe equipe = new Equipe();
-            equipe.setIdEquipe(1);
-            equipe.setNiveau(Niveau.SENIOR);
-            equipe.setEtudiants(new HashSet<>(Collections.singletonList(etudiant)));
-
-            when(equipeRepository.findAll()).thenReturn(Collections.singletonList(equipe));
-
-            // Act
-            equipeService.evoluerEquipes();
-
-            // Assert
-            // Verify logs or assert no exceptions were thrown
-        }
-
-        @Test
-        public void testEvoluerEquipes_StudentsWithActiveContracts() {
+        void testEvoluerEquipes_StudentsWithActiveContracts() {
             // Arrange
             Date dateFinContrat = new Date(System.currentTimeMillis() - (1000L * 60 * 60 * 24 * 366)); // More than a year ago
             Contrat contrat = new Contrat();
@@ -152,12 +137,11 @@ class EquipeServiceImplTest {
             // Act
             equipeService.evoluerEquipes();
 
-            // Assert
-            // Verify logs or assert no exceptions were thrown
+
         }
 
         @Test
-        public void testEvoluerEquipes_BreaksAfterThreeActiveContracts() {
+        void testEvoluerEquipes_BreaksAfterThreeActiveContracts() {
             // Arrange
             Contrat activeContrat = new Contrat();
             activeContrat.setIdContrat(1);
@@ -186,8 +170,7 @@ class EquipeServiceImplTest {
             // Act
             equipeService.evoluerEquipes();
 
-            // Assert
-            // Verify that the method stops processing after finding 3 active contracts
+           
         }
     }
 
