@@ -110,30 +110,12 @@ public class EquipeServiceImpl implements IEquipeService {
 					}
 				}
 
-				if (nbEtudiantsAvecContratsActifs >= 3) {
-					upgradeTeam(equipe);
-				}
+
 			}
 		}
 
 		log.info("Team evolution process completed.");
 	}
 
-
-
-	private void upgradeTeam(Equipe equipe) {
-		log.info("Team {} meets the criteria for evolution.", equipe.getIdEquipe());
-
-		if (equipe.getNiveau() == Niveau.JUNIOR) {
-			equipe.setNiveau(Niveau.SENIOR);
-			log.info("Team {} upgraded from JUNIOR to SENIOR.", equipe.getIdEquipe());
-		} else if (equipe.getNiveau() == Niveau.SENIOR) {
-			equipe.setNiveau(Niveau.EXPERT);
-			log.info("Team {} upgraded from SENIOR to EXPERT.", equipe.getIdEquipe());
-		}
-
-		equipeRepository.save(equipe);
-		log.debug("Team {} updated in the repository.", equipe.getIdEquipe());
-	}
 
 }

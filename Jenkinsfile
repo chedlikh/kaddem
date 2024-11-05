@@ -85,7 +85,7 @@ pipeline {
             steps {
 
                     waitForQualityGate abortPipeline: true  // Wait for the quality gate
-                
+
             }
         }
 

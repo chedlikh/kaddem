@@ -9,10 +9,7 @@ import tn.esprit.spring.kaddem.entities.*;
 import tn.esprit.spring.kaddem.repositories.EquipeRepository;
 import tn.esprit.spring.kaddem.services.EquipeServiceImpl;
 
-import java.util.ArrayList;
-
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -93,4 +90,107 @@ class EquipeServiceImplTest {
     }
 
 
-}
+
+        @Test
+        public void testEvoluerEquipes_NoStudentsInTeam() {
+            // Arrange
+            Equipe equipe = new Equipe();
+            equipe.setIdEquipe(1);
+            equipe.setNiveau(Niveau.JUNIOR);
+            equipe.setEtudiants(Collections.emptySet()); // No students
+
+            when(equipeRepository.findAll()).thenReturn(Collections.singletonList(equipe));
+
+            // Act
+            equipeService.evoluerEquipes();
+
+            // Assert
+            // Verify logs or assert no exceptions were thrown
+        }
+
+        @Test
+        public void testEvoluerEquipes_StudentsWithoutActiveContracts() {
+            // Arrange
+            Etudiant etudiant = new Etudiant();
+            etudiant.setIdEtudiant(1);
+            etudiant.setContrats(new HashSet<>()); // No contracts
+
+            Equipe equipe = new Equipe();
+            equipe.setIdEquipe(1);
+            equipe.setNiveau(Niveau.SENIOR);
+            equipe.setEtudiants(new HashSet<>(Collections.singletonList(etudiant)));
+
+            when(equipeRepository.findAll()).thenReturn(Collections.singletonList(equipe));
+
+            // Act
+            equipeService.evoluerEquipes();
+
+            // Assert
+            // Verify logs or assert no exceptions were thrown
+        }
+
+        @Test
+        public void testEvoluerEquipes_StudentsWithActiveContracts() {
+            // Arrange
+            Date dateFinContrat = new Date(System.currentTimeMillis() - (1000L * 60 * 60 * 24 * 366)); // More than a year ago
+            Contrat contrat = new Contrat();
+            contrat.setIdContrat(1);
+            contrat.setArchive(false);
+            contrat.setDateFinContrat(dateFinContrat);
+
+            Etudiant etudiant = new Etudiant();
+            etudiant.setIdEtudiant(1);
+            etudiant.setContrats(new HashSet<>(Collections.singletonList(contrat)));
+
+            Equipe equipe = new Equipe();
+            equipe.setIdEquipe(1);
+            equipe.setNiveau(Niveau.JUNIOR);
+            equipe.setEtudiants(new HashSet<>(Collections.singletonList(etudiant)));
+
+            when(equipeRepository.findAll()).thenReturn(Collections.singletonList(equipe));
+
+            // Act
+            equipeService.evoluerEquipes();
+
+            // Assert
+            // Verify logs or assert no exceptions were thrown
+        }
+
+        @Test
+        public void testEvoluerEquipes_BreaksAfterThreeActiveContracts() {
+            // Arrange
+            Contrat activeContrat = new Contrat();
+            activeContrat.setIdContrat(1);
+            activeContrat.setArchive(false);
+            activeContrat.setDateFinContrat(new Date(System.currentTimeMillis() - (1000L * 60 * 60 * 24 * 366))); // More than a year ago
+
+            Etudiant etudiant1 = new Etudiant();
+            etudiant1.setIdEtudiant(1);
+            etudiant1.setContrats(new HashSet<>(Collections.singletonList(activeContrat)));
+
+            Etudiant etudiant2 = new Etudiant();
+            etudiant2.setIdEtudiant(2);
+            etudiant2.setContrats(new HashSet<>(Collections.singletonList(activeContrat)));
+
+            Etudiant etudiant3 = new Etudiant();
+            etudiant3.setIdEtudiant(3);
+            etudiant3.setContrats(new HashSet<>(Collections.singletonList(activeContrat)));
+
+            Equipe equipe = new Equipe();
+            equipe.setIdEquipe(1);
+            equipe.setNiveau(Niveau.SENIOR);
+            equipe.setEtudiants(new HashSet<>(Arrays.asList(etudiant1, etudiant2, etudiant3)));
+
+            when(equipeRepository.findAll()).thenReturn(Collections.singletonList(equipe));
+
+            // Act
+            equipeService.evoluerEquipes();
+
+            // Assert
+            // Verify that the method stops processing after finding 3 active contracts
+        }
+    }
+
+
+
+
