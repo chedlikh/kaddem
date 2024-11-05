@@ -3,9 +3,12 @@ version: '3.8'
 services:
   mysql:
     image: mysql
+    container_name: mysqldb
     environment:
+      MYSQL_ROOT_PASSWORD: 
       MYSQL_DATABASE: kaddemdb
-      MYSQL_ROOT_PASSWORD:
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
     ports:
       - "3307:3306"
     networks:
