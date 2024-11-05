@@ -40,20 +40,24 @@ public class EquipeServiceImpl implements IEquipeService {
 
 	public void deleteEquipe(Integer idEquipe) {
 		log.info("Deleting team with ID: {}", idEquipe);
-		Equipe e = retrieveEquipe(idEquipe);
-		equipeRepository.delete(e);
+		Equipe equipeToDelete;
+		try {
+			equipeToDelete = retrieveEquipe(idEquipe);
+		} catch (NoSuchElementException e) {
+			log.error("Cannot delete team. {}", e.getMessage());
+			throw new IllegalArgumentException("Equipe with ID " + idEquipe + " does not exist.");
+		}
+		equipeRepository.delete(equipeToDelete);
 		log.info("Team with ID: {} has been deleted.", idEquipe);
 	}
 
 	public Equipe retrieveEquipe(Integer equipeId) {
 		log.info("Retrieving team with ID: {}", equipeId);
-		Equipe equipe = equipeRepository.findById(equipeId).orElse(null);
-		if (equipe == null) {
-			log.error("Team with ID: {} not found.", equipeId);
-		} else {
-			log.debug("Team found: {}", equipe);
-		}
-		return equipe;
+		return equipeRepository.findById(equipeId)
+				.orElseThrow(() -> {
+					log.error("Team with ID: {} not found.", equipeId);
+					return new NoSuchElementException("Team not found with ID: " + equipeId);
+				});
 	}
 
 	public Equipe updateEquipe(Equipe e) {
