@@ -79,7 +79,7 @@ public class EquipeServiceImpl implements IEquipeService {
 					log.warn("No students found in team: {}", equipe.getIdEquipe());
 					continue; // Skip to the next team
 				}
-				long ONEYEARINMILLIS = 1000L * 60 * 60 * 24 * 365;
+				long oneYearInMillis = 1000L * 60 * 60 * 24 * 365;
 				int nbEtudiantsAvecContratsActifs = 0;
 
 				for (Etudiant etudiant : etudiants) {
@@ -95,7 +95,7 @@ public class EquipeServiceImpl implements IEquipeService {
 
 							// Simplify the boolean condition
 							boolean isActiveContract = !contrat.getArchive()
-									&& (dateSysteme.getTime() - contrat.getDateFinContrat().getTime() > ONEYEARINMILLIS);
+									&& (dateSysteme.getTime() - contrat.getDateFinContrat().getTime() > oneYearInMillis);
 
 							if (isActiveContract) {
 								nbEtudiantsAvecContratsActifs++;
@@ -119,7 +119,7 @@ public class EquipeServiceImpl implements IEquipeService {
 		log.info("Team evolution process completed.");
 	}
 
-	
+
 
 	private void upgradeTeam(Equipe equipe) {
 		log.info("Team {} meets the criteria for evolution.", equipe.getIdEquipe());
