@@ -35,7 +35,7 @@ class JunitEquipeServiceImplTest {
     }
         @Test
         @Order(1)
-        void testRetrieveAllEquipes() {
+        void retrieveAllEquipes() {
             // Préparation des données
             equipeRepository.save(new Equipe(null, "Equipe A", null));
             equipeRepository.save(new Equipe(null, "Equipe B", null));
