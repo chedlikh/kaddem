@@ -10,8 +10,7 @@ services:
 
     ports:
       - "3307:3306"  # Map MySQL port to host
-    volumes:
-      - db:/var/lib/mysql
+    
     networks:
       - app-network
 
