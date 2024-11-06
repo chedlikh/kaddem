@@ -6,7 +6,7 @@ pipeline {
     }
     environment {
         DOCKER_IMAGE = 'trabelsimedali-grp6-kaddem'
-        IMAGE_TAG = '1.1'
+        IMAGE_TAG = '0.0.1'
     }
     stages {
         stage('Checkout') {
@@ -59,7 +59,7 @@ pipeline {
                     def nexusUrl = "http://192.168.33.10:9001"
                     def groupId = "tn.esprit.spring"
                     def artifactId = "5SAE6-grp6-kaddem"
-                    def version = "1.0"
+                    def version = "1.1"
 
                     sh """
                         docker build -t ${DOCKER_IMAGE}:${IMAGE_TAG} \
@@ -86,6 +86,14 @@ pipeline {
                 }
             }
         }
+
+	  stage('Docker Compose Up') {
+            steps {
+                script {         
+                    sh 'docker compose up -d'
+                }
+            }
+        }  
 
 
  }
