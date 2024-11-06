@@ -5,7 +5,6 @@ pipeline {
         maven 'M2_HOME'
     }
     environment {
-        SONARQUBE_ENV = 'sonarqube'
         DOCKER_IMAGE = 'trabelsimedali-grp6-kaddem'
         IMAGE_TAG = '1.1'
     }
@@ -28,19 +27,22 @@ pipeline {
             }
         }
     stage('SonarQube Analysis') {
-           steps {
-               script {
-                   withSonarQubeEnv("${SONARQUBE_ENV}") {
-                       sh """
-                           mvn sonar:sonar \
-                           -Dsonar.login=${SONAR_TOKEN} \
-                           -Dsonar.inclusions=src/main/java/tn/esprit/spring/services/** \
-                           -Dsonar.test.inclusions=src/test/java/tn/esprit/spring/services/** \
-                           -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
-                       """
-                   }
-               }
-           }
+           environment {
+                SONAR_URL = "http://192.168.33.10:9000/" // URL de SonarCloud test webhook test test
+            }
+            steps {
+                withCredentials([string(credentialsId: 'sonar-credentials', variable: 'SONAR_TOKEN')]) {
+                    sh '''
+                         mvn sonar:sonar \
+                        -Dsonar.login=${SONAR_TOKEN} \
+                        -Dsonar.host.url=${SONAR_URL} \
+                        -Dsonar.java.binaries=target/classes \
+                        -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
+                        -Dsonar.inclusions=/src/main/java/tn/esprit/spring/kaddem/services/DepartementServiceImpl.java \
+                        -Dsonar.test.inclusions=/src/test/java/tn/esprit/spring/kaddem/services/DepartementServiceImplTest.java
+                    '''
+                }
+            }
        }
 
 
