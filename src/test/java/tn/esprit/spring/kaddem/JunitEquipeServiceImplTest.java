@@ -31,7 +31,7 @@ class JunitEquipeServiceImplTest {
         private EquipeServiceImpl equipeService;
     @BeforeEach
     void setUp() {
-        
+        equipeRepository.deleteAll();
     }
         @Test
         @Order(1)
