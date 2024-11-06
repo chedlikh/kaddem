@@ -28,7 +28,7 @@ pipeline {
         }
     stage('SonarQube Analysis') {
            environment {
-                SONAR_URL = "http://192.168.33.10:9000/" // URL de SonarCloud test webhook test test
+                SONAR_URL = "http://192.168.33.10:9000/" // URL de Sonarqube
             }
             steps {
                 withCredentials([string(credentialsId: 'sonar-credentials', variable: 'SONAR_TOKEN')]) {
@@ -68,6 +68,21 @@ pipeline {
                         --build-arg ARTIFACT_ID=${artifactId} \
                         --build-arg VERSION=${version} .
                     """
+                }
+            }
+        }
+
+	 stage('Push Docker Image') {
+            environment {
+                DOCKER_HUB_CREDENTIALS = credentials('docker-hub-credentials')
+            }
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                        sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
+                        sh "docker tag ${DOCKER_IMAGE}:${IMAGE_TAG} $DOCKER_USERNAME/${DOCKER_IMAGE}:${IMAGE_TAG}"
+                        sh "docker push $DOCKER_USERNAME/${DOCKER_IMAGE}:${IMAGE_TAG}"
+                    }
                 }
             }
         }
