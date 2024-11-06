@@ -10,7 +10,7 @@
     </parent>
 
     <groupId>tn.esprit.spring</groupId>
-    <artifactId>kaddem</artifactId>
+    <artifactId>5SAE6-grp6-kaddem</artifactId>
     <version>0.0.1</version>
     <name>kaddem</name>
     <description>kaddem</description>
@@ -136,6 +136,7 @@
                 <version>3.9.1.2184</version>
             </plugin>
         </plugins>
+<finalName>5SAE6-grp6-kaddem</finalName>
     </build>
     <distributionManagement>
         <repository>
