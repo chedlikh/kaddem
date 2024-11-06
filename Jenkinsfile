@@ -53,8 +53,44 @@ pipeline {
                 }
             }
         }
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    def nexusUrl = "http://192.168.33.10:9001"
+                    def groupId = "tn.esprit.spring"
+                    def artifactId = "5SAE6-grp6-kaddem"
+                    def version = "1.0"
+
+                    sh """
+                        docker build -t ${DOCKER_IMAGE}:${IMAGE_TAG} \
+                        --build-arg NEXUS_URL=${nexusUrl} \
+                        --build-arg GROUP_ID=${groupId} \
+                        --build-arg ARTIFACT_ID=${artifactId} \
+                        --build-arg VERSION=${version} .
+                    """
+                }
+            }
+        }
 
 
  }
+  post {
+    success {
+        script {
+            slackSend(
+                channel: '#jenkins-messg', 
+                message: "Le build a réussi : ${env.JOB_NAME} #${env.BUILD_NUMBER} ! Image pushed: ${DOCKER_IMAGE}:${IMAGE_TAG} successfully."
+            )
+        }
+    }
+    failure {
+        script {
+            slackSend(
+                channel: '#jenkins-messg', 
+                message: "Le build a échoué : ${env.JOB_NAME} #${env.BUILD_NUMBER}."
+            )
+        }
+    }
+}
 
 }
