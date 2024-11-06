@@ -12,7 +12,8 @@ services:
     volumes:
       - dbs:/var/lib/mysql
 
-  app-timesheet:
+  app:
+    container_name: kaddem
     depends_on:
       - mysqldb
     build:
