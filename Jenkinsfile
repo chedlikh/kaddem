@@ -26,15 +26,12 @@ pipeline {
                 '''
             }
         }
-stage('Publish JaCoCo Report') {
-    steps {
-        jacocoPublisher(
-            reportPath: 'target/site/jacoco/jacoco.xml', // Chemin du rapport JaCoCo
-            execPattern: '**/*.exec', // Si nécessaire, ajoutez un pattern pour les fichiers .exec
-            changeBuildStatus: true // Modifier l'état du build en fonction de la couverture
-        )
-    }
-}
+  stage('Publish JaCoCo Report') {
+            steps {
+                // Archive the JaCoCo report
+                archiveArtifacts artifacts: 'target/site/jacoco/jacoco.xml', allowEmptyArchive: true
+            }
+        }
     stage('SonarQube Analysis') {
            environment {
                 SONAR_URL = "http://192.168.33.10:9000/" // URL de Sonarqube
