@@ -30,6 +30,7 @@ pipeline {
             steps {
                 // Archive the JaCoCo report
                 archiveArtifacts artifacts: 'target/site/jacoco/jacoco.xml', allowEmptyArchive: true
+jacoco()
             }
         }
     stage('SonarQube Analysis') {
