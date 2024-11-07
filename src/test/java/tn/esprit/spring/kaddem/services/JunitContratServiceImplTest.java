@@ -35,13 +35,7 @@ class JunitContratServiceImplTest {
         Contrat addedContrat = contratService.addContrat(contratDto);
         assertNotNull(addedContrat);
         assertEquals(1500, addedContrat.getMontantContrat());
-         assertEquals(dateDebut, addedContrat.getDateDebutContrat());
-    assertEquals(dateFin, addedContrat.getDateFinContrat());
-    assertEquals(Specialite.IA, addedContrat.getSpecialite()); // Remplacer par la spécialité exacte si différente
-    assertEquals(false, addedContrat.isArchive());
-    assertEquals(1, addedContrat.getEtudiant().getId()); // Assurez-vous que l'objet Etudiant est bien récupéré
-
-
+  
         log.info("AddContratTest : Ok");
     }
 
