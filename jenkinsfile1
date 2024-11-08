@@ -1,13 +1,20 @@
 pipeline {
     agent any
 
+    environment {
+        SMTP_SERVER = 'smtp.gmail.com'
+        SMTP_PORT = '465'
+        SMTP_USER = 'chdouuulaa@gmail.com' // Replace with your actual email
+        SMTP_PASSWORD = 'ytfy gift rsky bspy' // Or use Jenkins credentials
+    }
+
     stages {
-        stage('Hello') {
+        stage('Send Email Notification') {
             steps {
                 script {
-                    // Sending HTML formatted email
+                    // Send HTML formatted email
                     emailext(
-                        subject: 'Jenkins Build Notification', 
+                        subject: 'Jenkins Build Notification',
                         body: '''
                             <html>
                                 <body style="font-family: Arial, sans-serif; background-color: #f4f4f9; padding: 20px;">
@@ -22,28 +29,29 @@ pipeline {
                             </html>
                         ''',
                         mimeType: 'text/html',
-                        to: 'chdouuulaa@gmail.com'
+                        to: 'chdouuulaa@gmail.com', // Replace with your recipient email
+                        from: 'chdouuulaa@gmail.com'  // Optional: Can be configured globally
                     )
                 }
             }
         }
     }
-    
+
     post {
         success {
             script {
                 // Notify success with HTML email
                 emailext(
-                    subject: 'Build Successful', 
+                    subject: 'Build Successful',
                     body: '''
                         <html>
                             <body style="font-family: Arial, sans-serif; background-color: #e6f7e6; padding: 20px;">
                                 <h2 style="color: #333;">Build Successful</h2>
-                                <p style="color: #555;">Congratulations! The Jenkins build has completed successfully.</p>
+                                <p style="color: #555;">The Jenkins build has completed successfully.</p>
                                 <ul>
                                     <li><b>Job:</b> ${JOB_NAME}</li>
                                     <li><b>Build Number:</b> ${BUILD_NUMBER}</li>
-                                    <li><b>Build Status:</b> Success</li>
+                                    <li><b>Status:</b> Success</li>
                                 </ul>
                                 <footer style="color: #888;">
                                     <p>Jenkins Pipeline <b>Build Success</b></p>
@@ -52,25 +60,26 @@ pipeline {
                         </html>
                     ''',
                     mimeType: 'text/html',
-                    to: 'chdouuulaa@gmail.com'
+                    to: 'chdouuulaa@gmail.com', // Replace with your recipient email
+                    from: 'chdouuulaa@gmail.com'
                 )
             }
         }
-        
+
         failure {
             script {
                 // Notify failure with HTML email
                 emailext(
-                    subject: 'Build Failed', 
+                    subject: 'Build Failed',
                     body: '''
                         <html>
                             <body style="font-family: Arial, sans-serif; background-color: #f8d7da; padding: 20px;">
                                 <h2 style="color: #721c24;">Build Failed</h2>
-                                <p style="color: #555;">Unfortunately, the Jenkins build has failed. Please check the logs for more details.</p>
+                                <p style="color: #555;">Unfortunately, the Jenkins build has failed. Please check the logs.</p>
                                 <ul>
                                     <li><b>Job:</b> ${JOB_NAME}</li>
                                     <li><b>Build Number:</b> ${BUILD_NUMBER}</li>
-                                    <li><b>Build Status:</b> Failed</li>
+                                    <li><b>Status:</b> Failed</li>
                                 </ul>
                                 <footer style="color: #888;">
                                     <p>Jenkins Pipeline <b>Build Failure</b></p>
@@ -79,7 +88,8 @@ pipeline {
                         </html>
                     ''',
                     mimeType: 'text/html',
-                    to: 'chdouuulaa@gmail.com'
+                    to: 'chdouuulaa@gmail.com', // Replace with your recipient email
+                    from: 'chdouuulaa@gmail.com'
                 )
             }
         }
