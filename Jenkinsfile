@@ -106,6 +106,24 @@ pipeline {
                 }
             }
         }
+        
+        stage("DockerHUB") {
+            agent { label 'slave02' }
+            steps {
+                script {
+                    // Build Docker image using Dockerfile
+                    sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ."
+                    
+                    // Log in to Docker Hub
+                    withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
+                        sh "echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin"
+                    }
+
+                    // Push Docker image to Docker Hub
+                    sh "docker push ${DOCKER_IMAGE}:${DOCKER_TAG}"
+                }
+            }
+        }
 
         stage("Docker Compose Build & Push") {
             agent { label 'slave02' }
