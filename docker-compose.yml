@@ -1,42 +1,49 @@
-version: '3.8'
+version: "3.8"
 
 services:
-  mysql:
-    image: mysql
+  mysqldb:
+    image: mysql:5.7
     restart: unless-stopped
-    container_name: mysqldb
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: kaddemdb
-
-
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=kaddemdb
     ports:
-      - "3307:3306"  # Map MySQL port to host
+      - "3307:3306"
     volumes:
-      - db:/var/lib/mysql
-    networks:
-      - app-network
-
-
-
+      - dbs:/var/lib/mysql
 
   app:
+    container_name: kaddem
+    depends_on:
+      - mysqldb
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile  
+    restart: on-failure
     ports:
       - "8089:8089"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://192.168.33.11:3307/kaddemdb  # Use service name for connection
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: root
-    depends_on:
-      - mysql
-    networks:
-      - app-network
+      SPRING_APPLICATION_JSON: '{
+        "spring.datasource.url": "jdbc:mysql://mysqldb:3306/kaddemdb",
+        "spring.datasource.username": "root",
+        "spring.datasource.password": null,
+        "spring.jpa.properties.hibernate.dialect": "org.hibernate.dialect.MySQL5InnoDBDialect",
+        "spring.jpa.hibernate.ddl-auto": "update"
+      }'
+    stdin_open: true
+    tty: true
 
-networks:
-  app-network:
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    restart: unless-stopped
+    depends_on:
+      - mysqldb
+    environment:
+      - PMA_HOST=mysqldb
+      - PMA_USER=root
+      - PMA_PASSWORD=root
+    ports:
+      - "8099:80"
 
 volumes:
-  db:
+  dbs:
