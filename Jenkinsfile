@@ -105,6 +105,7 @@ jacoco()
 
  }
   post {
+always{
     success {
         script {
             slackSend(
@@ -133,5 +134,5 @@ emailext(
         }
     }
 }
-
+}
 }
