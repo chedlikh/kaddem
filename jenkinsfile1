@@ -23,43 +23,37 @@ pipeline {
         }
     }
 
-    post {
-        success {
-            script {
-                emailext(
-                    subject: "Build Notification: ${currentBuild.fullDisplayName}",
-                    body: "The build status is: ${currentBuild.result}\n\nBuild Log: ${env.BUILD_URL}",
-                    to: env.EMAIL_RECIPIENTS
-                )
-            }
-        }
-        unstable {
-            script {
-                emailext(
-                    subject: "Build Notification: ${currentBuild.fullDisplayName} (Unstable)",
-                    body: "The build status is: ${currentBuild.result}\n\nBuild Log: ${env.BUILD_URL}",
-                    to: env.EMAIL_RECIPIENTS
-                )
-            }
-        }
-        failure {
-            script {
-                emailext(
-                    subject: "Build Notification: ${currentBuild.fullDisplayName} (Failed)",
-                    body: "The build status is: ${currentBuild.result}\n\nBuild Log: ${env.BUILD_URL}\n\nPlease check the logs for details.",
-                    to: env.EMAIL_RECIPIENTS
-                )
-            }
-        }
-        always {
-            script {
-                emailext(
-                    subject: "Build Notification: ${currentBuild.fullDisplayName} (Always)",
-                    body: "The build status is: ${currentBuild.result}\n\nBuild Log: ${env.BUILD_URL}",
-                    to: env.EMAIL_RECIPIENTS,
-                    recipientProviders: [developers(), requestor()]
-                )
-            }
-        }
+   post {
+    always {
+        echo 'Pipeline terminé.'  // Message à afficher à la fin du pipeline
+    }
+    success {
+        emailext(
+            subject: "${EMAIL_SUBJECT}: Success",
+            body: """ 
+            Build Status: SUCCESS
+            Build Number: ${BUILD_NUMBER}
+            Build Name: ${currentBuild.fullDisplayName}
+            Build URL: ${BUILD_URL}
+            Logs: ${currentBuild.absoluteUrl}console
+            """,
+            to: "${EMAIL_RECIPIENT}"
+        )
+    }
+    failure {
+        emailext(
+            subject: "${EMAIL_SUBJECT}: Failed",
+            body: """ 
+            Build Status: FAILURE
+            Build Number: ${BUILD_NUMBER}
+            Build Name: ${currentBuild.fullDisplayName}
+            Build URL: ${BUILD_URL}
+            Logs: ${currentBuild.absoluteUrl}console
+            """,
+            to: "${EMAIL_RECIPIENT}"
+        )
+    }
+}
+
     }
 }
