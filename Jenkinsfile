@@ -112,11 +112,11 @@ pipeline {
             steps {
                 script {
                     // Build and push images using Docker Compose
-                    sh "docker-compose -f ${DOCKER_COMPOSE_FILE} build"  // Build images
+                    sh "docker compose -f ${DOCKER_COMPOSE_FILE} build"  // Build images
                     withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
                         sh "echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin"  // Log in to Docker Hub
                     }
-                    sh "docker-compose -f ${DOCKER_COMPOSE_FILE} push"  // Push images to Docker Hub
+                    sh "docker compose -f ${DOCKER_COMPOSE_FILE} push"  // Push images to Docker Hub
                 }
             }
         }
@@ -126,7 +126,7 @@ pipeline {
             steps {
                 script {
                     // Run Docker Compose to start the containers
-                    sh "docker-compose -f ${DOCKER_COMPOSE_FILE} up -d"  // Start containers in detached mode
+                    sh "docker compose -f ${DOCKER_COMPOSE_FILE} up -d"  // Start containers in detached mode
                 }
             }
         }
