@@ -7,6 +7,7 @@ pipeline {
     options {
         buildDiscarder(logRotator(numToKeepStr: '5'))  // Keep the last 5 builds
     }
+    
 
     environment {
         // Environment variables for Nexus
@@ -21,7 +22,9 @@ pipeline {
         DOCKER_CREDENTIALS_ID = "docker-hub-creds"
         DOCKER_IMAGE = "chedli1/kaddem"
         DOCKER_TAG = "v1.0.0-${BUILD_NUMBER}"
-        DOCKER_COMPOSE_FILE = "docker-compose.yml"  // Specify your Docker Compose file
+        DOCKER_COMPOSE_FILE = "docker-compose.yml"  
+        EMAIL_RECIPIENT = 'khangui.mohamedchedli@esprit.tn'  
+        EMAIL_SUBJECT = 'Jenkins Build Notification'
     }
 
     stages {
@@ -33,14 +36,7 @@ pipeline {
                 }
             }
         }
-         stage("Terraform Apply") {
-            steps {
-                script {
-                    sh "terraform init"
-                    sh "terraform apply -auto-approve"
-                }
-            }
-        }
+        
 
         stage("Maven Build") {
             agent { label 'slave02' }  // Run this stage on slave02
@@ -154,7 +150,7 @@ pipeline {
                 script {
                     // Run Docker Compose to start the containers
                     sh "docker compose -f ${DOCKER_COMPOSE_FILE} up -d"  // Start containers in detached mode
-                }
+               }
             }
         }
     }
@@ -163,8 +159,19 @@ pipeline {
         always {
             echo 'Pipeline terminé.'  // Print message at the end of the pipeline
         }
+        success {
+            emailext(
+                subject: "${EMAIL_SUBJECT}: Success",
+                body: "The Jenkins pipeline ran successfully. Build number: ${BUILD_NUMBER}",
+                to: "${EMAIL_RECIPIENT}"
+            )
+        }
         failure {
-            echo 'Échec du pipeline.'  // Print message on failure
+            emailext(
+                subject: "${EMAIL_SUBJECT}: Failed",
+                body: "The Jenkins pipeline failed. Build number: ${BUILD_NUMBER}. Please check the logs for more details.",
+                to: "${EMAIL_RECIPIENT}"
+            )
         }
     }
 }
