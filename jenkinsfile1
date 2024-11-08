@@ -3,17 +3,13 @@ pipeline {
 
     environment {
         EMAIL_RECIPIENTS = 'chdouuulaa@gmail.com'
-        DEFAULT_SUBJECT = 'Build Notification: ${currentBuild.fullDisplayName}'
-        DEFAULT_BODY = 'The build status is: ${currentBuild.result}\n\nBuild Log: ${env.BUILD_URL}'
     }
 
     stages {
         stage('Build') {
             steps {
                 script {
-                    // Simulate build steps here
                     echo 'Building project...'
-                    // Replace with actual build commands (e.g., Maven, Gradle, etc.)
                 }
             }
         }
@@ -21,10 +17,7 @@ pipeline {
         stage('Test') {
             steps {
                 script {
-                    // Simulate testing steps here
                     echo 'Running tests...'
-                    // Replace with actual test commands
-                    // For example, sh 'mvn test'
                 }
             }
         }
@@ -32,33 +25,41 @@ pipeline {
 
     post {
         success {
-            emailext(
-                subject: "${DEFAULT_SUBJECT}",
-                body: "${DEFAULT_BODY}",
-                to: "${EMAIL_RECIPIENTS}"
-            )
+            script {
+                emailext(
+                    subject: "Build Notification: ${currentBuild.fullDisplayName}",
+                    body: "The build status is: ${currentBuild.result}\n\nBuild Log: ${env.BUILD_URL}",
+                    to: env.EMAIL_RECIPIENTS
+                )
+            }
         }
         unstable {
-            emailext(
-                subject: "${DEFAULT_SUBJECT} (Unstable)",
-                body: "${DEFAULT_BODY}",
-                to: "${EMAIL_RECIPIENTS}"
-            )
+            script {
+                emailext(
+                    subject: "Build Notification: ${currentBuild.fullDisplayName} (Unstable)",
+                    body: "The build status is: ${currentBuild.result}\n\nBuild Log: ${env.BUILD_URL}",
+                    to: env.EMAIL_RECIPIENTS
+                )
+            }
         }
         failure {
-            emailext(
-                subject: "${DEFAULT_SUBJECT} (Failed)",
-                body: "${DEFAULT_BODY}\n\nPlease check the logs for details.",
-                to: "${EMAIL_RECIPIENTS}"
-            )
+            script {
+                emailext(
+                    subject: "Build Notification: ${currentBuild.fullDisplayName} (Failed)",
+                    body: "The build status is: ${currentBuild.result}\n\nBuild Log: ${env.BUILD_URL}\n\nPlease check the logs for details.",
+                    to: env.EMAIL_RECIPIENTS
+                )
+            }
         }
         always {
-            emailext(
-                subject: "${DEFAULT_SUBJECT} (Always)",
-                body: "${DEFAULT_BODY}",
-                to: "${EMAIL_RECIPIENTS}",
-                recipientProviders: [developers(), requestor()]
-            )
+            script {
+                emailext(
+                    subject: "Build Notification: ${currentBuild.fullDisplayName} (Always)",
+                    body: "The build status is: ${currentBuild.result}\n\nBuild Log: ${env.BUILD_URL}",
+                    to: env.EMAIL_RECIPIENTS,
+                    recipientProviders: [developers(), requestor()]
+                )
+            }
         }
     }
 }
