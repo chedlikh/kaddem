@@ -7,7 +7,6 @@ pipeline {
     options {
         buildDiscarder(logRotator(numToKeepStr: '5'))  // Keep the last 5 builds
     }
-    
 
     environment {
         // Environment variables for Nexus
@@ -23,7 +22,7 @@ pipeline {
         DOCKER_IMAGE = "chedli1/kaddem"
         DOCKER_TAG = "v1.0.0-${BUILD_NUMBER}"
         DOCKER_COMPOSE_FILE = "docker-compose.yml"  
-        EMAIL_RECIPIENT = 'khangui.mohamedchedli@esprit.tn'  
+        EMAIL_RECIPIENT = 'chdouuulaa@gmail.com'  
         EMAIL_SUBJECT = 'Jenkins Build Notification'
     }
 
@@ -36,7 +35,6 @@ pipeline {
                 }
             }
         }
-        
 
         stage("Maven Build") {
             agent { label 'slave02' }  // Run this stage on slave02
@@ -88,9 +86,7 @@ pipeline {
 
         stage("Quality Gate") {
             steps {
-
-                    waitForQualityGate abortPipeline: false  // Wait for the quality gate
-
+                waitForQualityGate abortPipeline: false  // Wait for the quality gate
             }
         }
 
@@ -111,7 +107,7 @@ pipeline {
                 }
             }
         }
-        
+
         stage("DockerHUB") {
             agent { label 'slave02' }
             steps {
@@ -150,26 +146,59 @@ pipeline {
                 script {
                     // Run Docker Compose to start the containers
                     sh "docker compose -f ${DOCKER_COMPOSE_FILE} up -d"  // Start containers in detached mode
-               }
+                }
             }
         }
     }
 
     post {
         always {
-            echo 'Pipeline terminé.'  // Print message at the end of the pipeline
+            echo 'Pipeline execution completed.'
         }
         success {
             emailext(
                 subject: "${EMAIL_SUBJECT}: Success",
-                body: "The Jenkins pipeline ran successfully. Build number: ${BUILD_NUMBER}",
+                body: """ 
+                <html>
+                    <body style="font-family: Arial, sans-serif; color: #333;">
+                        <h2 style="color: green;">Build Status: SUCCESS</h2>
+                        <p><strong>Build Number:</strong> ${BUILD_NUMBER}</p>
+                        <p><strong>Build Name:</strong> ${currentBuild.fullDisplayName}</p>
+                        <p><strong>Build URL:</strong> <a href="${BUILD_URL}">${BUILD_URL}</a></p>
+                        <p><strong>Logs:</strong> <a href="${currentBuild.absoluteUrl}console">Click here to view logs</a></p>
+                        <h3>Pipeline Stages:</h3>
+                        <ul>
+                            <li><strong>Checkout:</strong> Git repository checkout from branch 'chedli'.</li>
+                            <li><strong>Maven Build:</strong> Maven project build completed.</li>
+                            <li><strong>Publish to Nexus:</strong> Artifact successfully uploaded to Nexus.</li>
+                            <li><strong>SonarQube Analysis:</strong> Code quality analysis completed.</li>
+                            <li><strong>Quality Gate:</strong> Passed quality gate check.</li>
+                            <li><strong>DockerHUB:</strong> Docker image built and pushed to Docker Hub.</li>
+                            <li><strong>Docker Compose Build & Push:</strong> Docker images built and pushed with Docker Compose.</li>
+                            <li><strong>Run Docker Compose:</strong> Containers started with Docker Compose.</li>
+                        </ul>
+                    </body>
+                </html>
+                """,
+                mimeType: 'text/html',
                 to: "${EMAIL_RECIPIENT}"
             )
         }
         failure {
             emailext(
                 subject: "${EMAIL_SUBJECT}: Failed",
-                body: "The Jenkins pipeline failed. Build number: ${BUILD_NUMBER}. Please check the logs for more details.",
+                body: """ 
+                <html>
+                    <body style="font-family: Arial, sans-serif; color: #333;">
+                        <h2 style="color: red;">Build Status: FAILURE</h2>
+                        <p><strong>Build Number:</strong> ${BUILD_NUMBER}</p>
+                        <p><strong>Build Name:</strong> ${currentBuild.fullDisplayName}</p>
+                        <p><strong>Build URL:</strong> <a href="${BUILD_URL}">${BUILD_URL}</a></p>
+                        <p><strong>Logs:</strong> <a href="${currentBuild.absoluteUrl}console">Click here to view logs</a></p>
+                    </body>
+                </html>
+                """,
+                mimeType: 'text/html',
                 to: "${EMAIL_RECIPIENT}"
             )
         }
