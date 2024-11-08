@@ -32,26 +32,34 @@ pipeline {
             emailext(
                 subject: "${EMAIL_SUBJECT}: Success",
                 body: """ 
-                Build Status: SUCCESS
-                Build Number: ${BUILD_NUMBER}
-                Build Name: ${currentBuild.fullDisplayName}
-                Build URL: ${BUILD_URL}
-                Logs: ${currentBuild.absoluteUrl}console
+                <html>
+                    <body style="font-family: Arial, sans-serif; color: #333;">
+                        <h2 style="color: green;">Build Status: SUCCESS</h2>
+                        <p><strong>Build Number:</strong> ${BUILD_NUMBER}</p>
+                        <p><strong>Build Name:</strong> ${currentBuild.fullDisplayName}</p>
+                        <p><strong>Build URL:</strong> <a href="${BUILD_URL}">${BUILD_URL}</a></p>
+                        <p><strong>Logs:</strong> <a href="${currentBuild.absoluteUrl}console">Click here to view logs</a></p>
+                    </body>
+                </html>
                 """,
-                to: "${EMAIL_RECIPIENTS}"  // Corrected to EMAIL_RECIPIENTS
+                to: "${EMAIL_RECIPIENTS}"
             )
         }
         failure {
             emailext(
                 subject: "${EMAIL_SUBJECT}: Failed",
                 body: """ 
-                Build Status: FAILURE
-                Build Number: ${BUILD_NUMBER}
-                Build Name: ${currentBuild.fullDisplayName}
-                Build URL: ${BUILD_URL}
-                Logs: ${currentBuild.absoluteUrl}console
+                <html>
+                    <body style="font-family: Arial, sans-serif; color: #333;">
+                        <h2 style="color: red;">Build Status: FAILURE</h2>
+                        <p><strong>Build Number:</strong> ${BUILD_NUMBER}</p>
+                        <p><strong>Build Name:</strong> ${currentBuild.fullDisplayName}</p>
+                        <p><strong>Build URL:</strong> <a href="${BUILD_URL}">${BUILD_URL}</a></p>
+                        <p><strong>Logs:</strong> <a href="${currentBuild.absoluteUrl}console">Click here to view logs</a></p>
+                    </body>
+                </html>
                 """,
-                to: "${EMAIL_RECIPIENTS}"  // Corrected to EMAIL_RECIPIENTS
+                to: "${EMAIL_RECIPIENTS}"
             )
         }
     }
