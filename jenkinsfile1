@@ -4,30 +4,84 @@ pipeline {
     stages {
         stage('Hello') {
             steps {
-                // Send a simple email
-                mail bcc: '', 
-                     body: 'This is a test email sent from Jenkins pipeline.', 
-                     subject: 'Jenkins Build Notification', 
-                     to: 'chdouuulaa@gmail.com'
+                script {
+                    // Sending HTML formatted email
+                    emailext(
+                        subject: 'Jenkins Build Notification', 
+                        body: '''
+                            <html>
+                                <body style="font-family: Arial, sans-serif; background-color: #f4f4f9; padding: 20px;">
+                                    <h2 style="color: #333;">Test Email from Jenkins Pipeline</h2>
+                                    <p style="color: #555;">This is a test email sent from Jenkins pipeline with <b>HTML formatting</b>.</p>
+                                    <p style="color: #555;">You can customize this template with colors, fonts, and images.</p>
+                                    <hr style="border: 1px solid #ddd;">
+                                    <footer style="color: #888;">
+                                        <p>Jenkins Pipeline <b>Test</b> | <a href="https://jenkins.io" style="color: #007bff;">Visit Jenkins</a></p>
+                                    </footer>
+                                </body>
+                            </html>
+                        ''',
+                        mimeType: 'text/html',
+                        to: 'chdouuulaa@gmail.com'
+                    )
+                }
             }
         }
     }
     
     post {
         success {
-            // Notify success
-            mail bcc: '', 
-                 body: 'The build was successful!', 
-                 subject: 'Build Successful', 
-                 to: 'chdouuulaa@gmail.com'
+            script {
+                // Notify success with HTML email
+                emailext(
+                    subject: 'Build Successful', 
+                    body: '''
+                        <html>
+                            <body style="font-family: Arial, sans-serif; background-color: #e6f7e6; padding: 20px;">
+                                <h2 style="color: #333;">Build Successful</h2>
+                                <p style="color: #555;">Congratulations! The Jenkins build has completed successfully.</p>
+                                <ul>
+                                    <li><b>Job:</b> ${JOB_NAME}</li>
+                                    <li><b>Build Number:</b> ${BUILD_NUMBER}</li>
+                                    <li><b>Build Status:</b> Success</li>
+                                </ul>
+                                <footer style="color: #888;">
+                                    <p>Jenkins Pipeline <b>Build Success</b></p>
+                                </footer>
+                            </body>
+                        </html>
+                    ''',
+                    mimeType: 'text/html',
+                    to: 'chdouuulaa@gmail.com'
+                )
+            }
         }
         
         failure {
-            // Notify failure
-            mail bcc: '', 
-                 body: 'The build failed. Please check the logs.', 
-                 subject: 'Build Failed', 
-                 to: 'chdouuulaa@gmail.com'
+            script {
+                // Notify failure with HTML email
+                emailext(
+                    subject: 'Build Failed', 
+                    body: '''
+                        <html>
+                            <body style="font-family: Arial, sans-serif; background-color: #f8d7da; padding: 20px;">
+                                <h2 style="color: #721c24;">Build Failed</h2>
+                                <p style="color: #555;">Unfortunately, the Jenkins build has failed. Please check the logs for more details.</p>
+                                <ul>
+                                    <li><b>Job:</b> ${JOB_NAME}</li>
+                                    <li><b>Build Number:</b> ${BUILD_NUMBER}</li>
+                                    <li><b>Build Status:</b> Failed</li>
+                                </ul>
+                                <footer style="color: #888;">
+                                    <p>Jenkins Pipeline <b>Build Failure</b></p>
+                                </footer>
+                            </body>
+                        </html>
+                    ''',
+                    mimeType: 'text/html',
+                    to: 'chdouuulaa@gmail.com'
+                )
+            }
         }
     }
 }
