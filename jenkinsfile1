@@ -5,7 +5,7 @@ pipeline {
     }
 
     environment {
-        EMAIL_RECIPIENT = 'chdouuulaa@gmail.com'
+        EMAIL_RECIPIENT = 'khangui.mohamedchedli@esprit.tn'
         EMAIL_SUBJECT = 'Jenkins Build Notification Test'
     }
 
@@ -21,8 +21,7 @@ pipeline {
                             to: "${EMAIL_RECIPIENT}",
                             replyTo: "${SMTP_USER}",
                             from: "${SMTP_USER}",
-                            mimeType: 'text/plain',
-                            charset: 'UTF-8'
+                            mimeType: 'text/plain'
                         )
                     }
                 }
