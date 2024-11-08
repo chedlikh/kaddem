@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         EMAIL_RECIPIENTS = 'chdouuulaa@gmail.com'
+        EMAIL_SUBJECT = 'Build Notification'  // Define EMAIL_SUBJECT
     }
 
     stages {
@@ -23,37 +24,35 @@ pipeline {
         }
     }
 
-   post {
-    always {
-        echo 'Pipeline terminé.'  // Message à afficher à la fin du pipeline
-    }
-    success {
-        emailext(
-            subject: "${EMAIL_SUBJECT}: Success",
-            body: """ 
-            Build Status: SUCCESS
-            Build Number: ${BUILD_NUMBER}
-            Build Name: ${currentBuild.fullDisplayName}
-            Build URL: ${BUILD_URL}
-            Logs: ${currentBuild.absoluteUrl}console
-            """,
-            to: "${EMAIL_RECIPIENT}"
-        )
-    }
-    failure {
-        emailext(
-            subject: "${EMAIL_SUBJECT}: Failed",
-            body: """ 
-            Build Status: FAILURE
-            Build Number: ${BUILD_NUMBER}
-            Build Name: ${currentBuild.fullDisplayName}
-            Build URL: ${BUILD_URL}
-            Logs: ${currentBuild.absoluteUrl}console
-            """,
-            to: "${EMAIL_RECIPIENT}"
-        )
+    post {
+        always {
+            echo 'Pipeline terminé.'  // Message à afficher à la fin du pipeline
+        }
+        success {
+            emailext(
+                subject: "${EMAIL_SUBJECT}: Success",
+                body: """ 
+                Build Status: SUCCESS
+                Build Number: ${BUILD_NUMBER}
+                Build Name: ${currentBuild.fullDisplayName}
+                Build URL: ${BUILD_URL}
+                Logs: ${currentBuild.absoluteUrl}console
+                """,
+                to: "${EMAIL_RECIPIENTS}"  // Corrected to EMAIL_RECIPIENTS
+            )
+        }
+        failure {
+            emailext(
+                subject: "${EMAIL_SUBJECT}: Failed",
+                body: """ 
+                Build Status: FAILURE
+                Build Number: ${BUILD_NUMBER}
+                Build Name: ${currentBuild.fullDisplayName}
+                Build URL: ${BUILD_URL}
+                Logs: ${currentBuild.absoluteUrl}console
+                """,
+                to: "${EMAIL_RECIPIENTS}"  // Corrected to EMAIL_RECIPIENTS
+            )
+        }
     }
 }
-
-    
-
