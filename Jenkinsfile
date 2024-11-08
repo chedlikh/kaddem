@@ -2,6 +2,7 @@ pipeline {
     agent any
     tools {
         maven "M2_HOME"  // Specify the Maven tool version
+        terraform 'terraform'
     }
     options {
         buildDiscarder(logRotator(numToKeepStr: '5'))  // Keep the last 5 builds
