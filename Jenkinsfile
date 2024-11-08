@@ -118,7 +118,7 @@ emailext(
                 <p>Status: ${currentBuild.currentResult}</p>
                 <p>Details: <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
             """,
-            to: "mohamedali.trabelsi1@esprit.tn"
+            to: "mohamedali.trabelsi1@esprit.tn",
             from: "trabelsi.dali484@gmail.com"
         )
         }
