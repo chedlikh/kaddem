@@ -96,7 +96,8 @@ jacoco()
 
 	  stage('Docker Compose Up') {
             steps {
-                script {         
+                script {
+                    sh  ' docker start nexus sonarqube' 
                     sh 'docker compose up -d'
                 }
             }
