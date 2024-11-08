@@ -1,62 +1,10 @@
 pipeline {
-    agent { label 'slave02' }
-    tools {
-        maven "M2_HOME"
-    }
-
-    environment {
-        EMAIL_RECIPIENT = 'khangui.mohamedchedli@esprit.tn'
-        EMAIL_SUBJECT = 'Jenkins Build Notification Test'
-    }
+    agent any
 
     stages {
-        stage("Email Notification Test") {
+        stage('Hello') {
             steps {
-                script {
-                    // Use credentials from Jenkins Credential Store
-                    withCredentials([usernamePassword(credentialsId: 'smtp-credentials', usernameVariable: 'SMTP_USER', passwordVariable: 'SMTP_PASS')]) {
-                        emailext(
-                            subject: "${EMAIL_SUBJECT}",
-                            body: "This is a test email from Jenkins to verify email notification settings.",
-                            to: "${EMAIL_RECIPIENT}",
-                            replyTo: "${SMTP_USER}",
-                            from: "${SMTP_USER}",
-                            mimeType: 'text/plain'
-                        )
-                    }
-                }
-            }
-        }
-    }
-
-    post {
-        always {
-            echo 'Pipeline finished executing.'
-        }
-        failure {
-            script {
-                withCredentials([usernamePassword(credentialsId: 'smtp-credentials', usernameVariable: 'SMTP_USER', passwordVariable: 'SMTP_PASS')]) {
-                    emailext(
-                        subject: "Jenkins Build Failed - ${JOB_NAME} #${BUILD_NUMBER}",
-                        body: "The Jenkins build has failed. Please check the build logs for details.",
-                        to: "${EMAIL_RECIPIENT}",
-                        replyTo: "${SMTP_USER}",
-                        from: "${SMTP_USER}"
-                    )
-                }
-            }
-        }
-        success {
-            script {
-                withCredentials([usernamePassword(credentialsId: 'smtp-credentials', usernameVariable: 'SMTP_USER', passwordVariable: 'SMTP_PASS')]) {
-                    emailext(
-                        subject: "Jenkins Build Success - ${JOB_NAME} #${BUILD_NUMBER}",
-                        body: "The Jenkins build has completed successfully.",
-                        to: "${EMAIL_RECIPIENT}",
-                        replyTo: "${SMTP_USER}",
-                        from: "${SMTP_USER}"
-                    )
-                }
+                mail bcc: '', body: 'Test', subject: 'Test', to: 'chdouuulaa@gmail.com'
             }
         }
     }
