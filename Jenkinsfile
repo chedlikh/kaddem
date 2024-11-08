@@ -119,7 +119,7 @@ emailext(
                 <p>Details: <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
             """,
             to: "trabelsi.dali484@gmail.com",
-            from: "trabelsi.dali484@gmail.com"
+            
         )
         }
 
