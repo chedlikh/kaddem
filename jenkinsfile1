@@ -1,10 +1,31 @@
 pipeline {
     agent any
 
+    environment {
+        EMAIL_RECIPIENTS = 'chdouuulaa@gmail.com'
+        DEFAULT_SUBJECT = 'Build Notification: ${currentBuild.fullDisplayName}'
+        DEFAULT_BODY = 'The build status is: ${currentBuild.result}\n\nBuild Log: ${env.BUILD_URL}'
+    }
+
     stages {
         stage('Build') {
             steps {
-                echo 'Building...'
+                script {
+                    // Simulate build steps here
+                    echo 'Building project...'
+                    // Replace with actual build commands (e.g., Maven, Gradle, etc.)
+                }
+            }
+        }
+
+        stage('Test') {
+            steps {
+                script {
+                    // Simulate testing steps here
+                    echo 'Running tests...'
+                    // Replace with actual test commands
+                    // For example, sh 'mvn test'
+                }
             }
         }
     }
@@ -12,16 +33,31 @@ pipeline {
     post {
         success {
             emailext(
-                subject: "Build Successful: ${currentBuild.fullDisplayName}",
-                body: "The build ${currentBuild.fullDisplayName} was successful.",
-                to: 'chdouuulaa@gmail.com'
+                subject: "${DEFAULT_SUBJECT}",
+                body: "${DEFAULT_BODY}",
+                to: "${EMAIL_RECIPIENTS}"
+            )
+        }
+        unstable {
+            emailext(
+                subject: "${DEFAULT_SUBJECT} (Unstable)",
+                body: "${DEFAULT_BODY}",
+                to: "${EMAIL_RECIPIENTS}"
             )
         }
         failure {
             emailext(
-                subject: "Build Failed: ${currentBuild.fullDisplayName}",
-                body: "The build ${currentBuild.fullDisplayName} failed.",
-                to: 'chdouuulaa@gmail.com'
+                subject: "${DEFAULT_SUBJECT} (Failed)",
+                body: "${DEFAULT_BODY}\n\nPlease check the logs for details.",
+                to: "${EMAIL_RECIPIENTS}"
+            )
+        }
+        always {
+            emailext(
+                subject: "${DEFAULT_SUBJECT} (Always)",
+                body: "${DEFAULT_BODY}",
+                to: "${EMAIL_RECIPIENTS}",
+                recipientProviders: [developers(), requestor()]
             )
         }
     }
