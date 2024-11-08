@@ -19,7 +19,7 @@ pipeline {
             mail bcc: '', 
                  body: 'The build was successful!', 
                  subject: 'Build Successful', 
-                 to: 'recipient@example.com'
+                 to: 'chdouuulaa@gmail.com'
         }
         
         failure {
@@ -27,7 +27,7 @@ pipeline {
             mail bcc: '', 
                  body: 'The build failed. Please check the logs.', 
                  subject: 'Build Failed', 
-                 to: 'recipient@example.com'
+                 to: 'chdouuulaa@gmail.com'
         }
     }
 }
