@@ -1,21 +1,27 @@
 package tn.esprit.spring.kaddem.services;
 
 import lombok.AllArgsConstructor;
+
 import org.springframework.stereotype.Service;
 import lombok.extern.slf4j.Slf4j;
-import tn.esprit.spring.kaddem.entities.Contrat;
+
 import tn.esprit.spring.kaddem.entities.Equipe;
 import tn.esprit.spring.kaddem.entities.Etudiant;
-import tn.esprit.spring.kaddem.entities.Niveau;
-import tn.esprit.spring.kaddem.repositories.EquipeRepository;
 
+import tn.esprit.spring.kaddem.repositories.EquipeRepository;
+import tn.esprit.spring.kaddem.repositories.EtudiantRepository;
+
+import javax.transaction.Transactional;
 import java.util.*;
 
 @Slf4j
 @AllArgsConstructor
 @Service
 public class EquipeServiceImpl implements IEquipeService {
+
 	EquipeRepository equipeRepository;
+
+	private EtudiantRepository etudiantRepository;
 
 
 	public List<Equipe> retrieveAllEquipes() {
@@ -65,6 +71,25 @@ public class EquipeServiceImpl implements IEquipeService {
 		Equipe updatedEquipe = equipeRepository.save(e);
 		log.debug("Team updated: {}", updatedEquipe);
 		return updatedEquipe;
+	}
+	@Transactional
+	public String assignEtudiantToEquipe(Integer etudiantId, Integer equipeId) {
+		Optional<Etudiant> etudiantOpt = etudiantRepository.findById(etudiantId);
+		Optional<Equipe> equipeOpt = equipeRepository.findById(equipeId);
+
+		if (etudiantOpt.isPresent() && equipeOpt.isPresent()) {
+			Etudiant etudiant = etudiantOpt.get();
+			Equipe equipe = equipeOpt.get();
+
+			etudiant.getEquipes().add(equipe);
+			equipe.getEtudiants().add(etudiant);
+
+			etudiantRepository.save(etudiant);
+			equipeRepository.save(equipe);
+
+			return "Etudiant assigned to Equipe successfully.";
+		}
+		return "Etudiant or Equipe not found.";
 	}
 
 }

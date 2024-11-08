@@ -36,7 +36,8 @@ public class EquipeRestController {
 	public EquipeDTO addEquipe(@RequestBody EquipeDTO equipeDTO) {
 		Equipe equipe = new Equipe();
 		equipe.setNomEquipe(equipeDTO.getNomEquipe());
-		equipe.setNiveau(Niveau.valueOf(String.valueOf(equipeDTO.getNiveau()))); // Convert string to Niveau enum
+		equipe.setNiveau(Niveau.valueOf(String.valueOf(equipeDTO.getNiveau())));
+		equipe.setIdEquipe(equipe.getIdEquipe());
 
 		Equipe savedEquipe = equipeService.addEquipe(equipe);
 		return new EquipeDTO(savedEquipe.getIdEquipe(), savedEquipe.getNomEquipe(), savedEquipe.getNiveau());
@@ -64,6 +65,10 @@ public class EquipeRestController {
 
 		// Convert back to DTO to return
 		return new EquipeDTO(updatedEquipe.getIdEquipe(), updatedEquipe.getNomEquipe(), updatedEquipe.getNiveau());
+	}
+	@PostMapping("/{etudiantId}/assign-to-equipe/{equipeId}")
+	public String assignEtudiantToEquipe(@PathVariable Integer etudiantId, @PathVariable Integer equipeId) {
+		return equipeService.assignEtudiantToEquipe(etudiantId, equipeId);
 	}
 
 

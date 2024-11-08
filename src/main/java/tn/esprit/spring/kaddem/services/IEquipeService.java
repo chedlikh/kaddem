@@ -10,5 +10,6 @@ public interface IEquipeService {
     public  void deleteEquipe(Integer idEquipe);
     public Equipe updateEquipe(Equipe e);
     public Equipe retrieveEquipe(Integer equipeId);
+    public String assignEtudiantToEquipe(Integer etudiantId, Integer equipeId);
 
 }
