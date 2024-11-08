@@ -9,7 +9,7 @@ pipeline {
         EMAIL_SUBJECT = 'Jenkins Build Notification Test'    // Set the email subject
     }
 
-   
+    stages {
         stage("Email Notification Test") {
             steps {
                 // Send a test email notification
