@@ -116,9 +116,10 @@ emailext(
             subject: "Build ${currentBuild.currentResult}: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
             body: """
                 <h1>The build completed successfully!</h1>
-               
+                <p>Status: ${currentBuild.currentResult}</p>
+                <p>Details: <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
             """,
-            to: "trabelsi.dali484@gmail.com",
+            to: "mohamedali.trabelsi1@esprit.tn,
             
         )
         }
