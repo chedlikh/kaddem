@@ -32,33 +32,41 @@ pipeline {
 
     post {
         success {
-            emailext(
-                subject: "${DEFAULT_SUBJECT}",
-                body: "${DEFAULT_BODY}",
-                to: "${EMAIL_RECIPIENTS}"
-            )
+            script {
+                emailext(
+                    subject: env.DEFAULT_SUBJECT,
+                    body: env.DEFAULT_BODY,
+                    to: env.EMAIL_RECIPIENTS
+                )
+            }
         }
         unstable {
-            emailext(
-                subject: "${DEFAULT_SUBJECT} (Unstable)",
-                body: "${DEFAULT_BODY}",
-                to: "${EMAIL_RECIPIENTS}"
-            )
+            script {
+                emailext(
+                    subject: "${env.DEFAULT_SUBJECT} (Unstable)",
+                    body: env.DEFAULT_BODY,
+                    to: env.EMAIL_RECIPIENTS
+                )
+            }
         }
         failure {
-            emailext(
-                subject: "${DEFAULT_SUBJECT} (Failed)",
-                body: "${DEFAULT_BODY}\n\nPlease check the logs for details.",
-                to: "${EMAIL_RECIPIENTS}"
-            )
+            script {
+                emailext(
+                    subject: "${env.DEFAULT_SUBJECT} (Failed)",
+                    body: "${env.DEFAULT_BODY}\n\nPlease check the logs for details.",
+                    to: env.EMAIL_RECIPIENTS
+                )
+            }
         }
         always {
-            emailext(
-                subject: "${DEFAULT_SUBJECT} (Always)",
-                body: "${DEFAULT_BODY}",
-                to: "${EMAIL_RECIPIENTS}",
-                recipientProviders: [developers(), requestor()]
-            )
+            script {
+                emailext(
+                    subject: "${env.DEFAULT_SUBJECT} (Always)",
+                    body: env.DEFAULT_BODY,
+                    to: env.EMAIL_RECIPIENTS,
+                    recipientProviders: [developers(), requestor()]
+                )
+            }
         }
     }
 }
