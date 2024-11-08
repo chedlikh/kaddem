@@ -1,11 +1,85 @@
 pipeline {
     agent any
 
+    environment {
+        EMAIL_RECIPIENT = 'chdouuulaa@gmail.com'  // Replace with the recipient email address
+        EMAIL_SENDER = 'chdouuulaa@gmail.com'      // Replace with the sender email address
+        EMAIL_SUBJECT = 'Jenkins Build Notification'
+        BUILD_URL = "${env.BUILD_URL}"
+        JOB_NAME = "${env.JOB_NAME}"
+        BUILD_NUMBER = "${env.BUILD_NUMBER}"
+    }
+
     stages {
-        stage('Hello') {
+        stage('Checkout') {
             steps {
-                mail bcc: '', body: 'Test', subject: 'Test', to: 'chdouuulaa@gmail.com'
+                checkout scm
             }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'mvn clean package'  // Replace with your actual build commands
+            }
+        }
+
+        stage('Email Notification Test') {
+            steps {
+                script {
+                    emailext(
+                        subject: "${EMAIL_SUBJECT} - ${JOB_NAME} #${BUILD_NUMBER}",
+                        body: """
+                            <h2>Build Notification</h2>
+                            <p><b>Job Name:</b> ${JOB_NAME}</p>
+                            <p><b>Build Number:</b> ${BUILD_NUMBER}</p>
+                            <p><b>Status:</b> ${currentBuild.result}</p>
+                            <p><b>Build URL:</b> <a href="${BUILD_URL}">${BUILD_URL}</a></p>
+                        """,
+                        to: "${EMAIL_RECIPIENT}",
+                        from: "${EMAIL_SENDER}",
+                        replyTo: "${EMAIL_SENDER}",
+                        mimeType: 'text/html'
+                    )
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Pipeline finished executing.'
+        }
+        success {
+            emailext(
+                subject: "SUCCESS: ${EMAIL_SUBJECT} - ${JOB_NAME} #${BUILD_NUMBER}",
+                body: """
+                    <h2>Build Success</h2>
+                    <p><b>Job Name:</b> ${JOB_NAME}</p>
+                    <p><b>Build Number:</b> ${BUILD_NUMBER}</p>
+                    <p><b>Status:</b> SUCCESS</p>
+                    <p><b>Build URL:</b> <a href="${BUILD_URL}">${BUILD_URL}</a></p>
+                """,
+                to: "${EMAIL_RECIPIENT}",
+                from: "${EMAIL_SENDER}",
+                replyTo: "${EMAIL_SENDER}",
+                mimeType: 'text/html'
+            )
+        }
+        failure {
+            emailext(
+                subject: "FAILURE: ${EMAIL_SUBJECT} - ${JOB_NAME} #${BUILD_NUMBER}",
+                body: """
+                    <h2>Build Failed</h2>
+                    <p><b>Job Name:</b> ${JOB_NAME}</p>
+                    <p><b>Build Number:</b> ${BUILD_NUMBER}</p>
+                    <p><b>Status:</b> FAILURE</p>
+                    <p><b>Build URL:</b> <a href="${BUILD_URL}">${BUILD_URL}</a></p>
+                """,
+                to: "${EMAIL_RECIPIENT}",
+                from: "${EMAIL_SENDER}",
+                replyTo: "${EMAIL_SENDER}",
+                mimeType: 'text/html'
+            )
         }
     }
 }
