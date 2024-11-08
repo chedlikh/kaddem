@@ -1,39 +1,46 @@
 pipeline {
-    agent { label 'slave02' }
+    agent { label 'slave02' }  // Replace 'slave02' with your actual Jenkins agent label
     tools {
-        maven "M2_HOME"
+        maven "M2_HOME"  // Specify the Maven tool version here
     }
 
     environment {
-        EMAIL_RECIPIENT = 'chdouuulaa@gmail.com'
-        EMAIL_SUBJECT = 'Jenkins Build Notification Test'
+        EMAIL_RECIPIENT = 'khangui.mohamedchedli@esprit.tn'  // Set the recipient email address
+        EMAIL_SUBJECT = 'Jenkins Build Notification Test'    // Set the email subject
     }
 
-    stages {
-        stage('Checkout') {
-            steps {
-                // Récupération du code depuis le référentiel Git
-                git url: 'https://github.com/chedlikh/kaddem.git', branch: 'chedli'
-            }
-        }
-
-        stage('Build') {
-            steps {
-                sh 'mvn clean package' // For a Maven project
-            }
-        }
-
+   
         stage("Email Notification Test") {
             steps {
-                script {
-                    // Test sending an email notification
-                    emailext(
-                        subject: "${EMAIL_SUBJECT}",
-                        body: "This is a test email from Jenkins to verify email notification settings.",
-                        to: "${EMAIL_RECIPIENT}"
-                    )
-                }
+                // Send a test email notification
+                emailext(
+                    subject: "${EMAIL_SUBJECT}",
+                    body: "This is a test email from Jenkins to verify email notification settings.",
+                    to: "${EMAIL_RECIPIENT}"
+                )
             }
+        }
+    }
+
+    post {
+        always {
+            echo 'Pipeline finished executing.'
+        }
+        failure {
+            emailext(
+                subject: "Jenkins Build Failed - ${JOB_NAME} #${BUILD_NUMBER}",
+                body: "The Jenkins build has failed. Please check the build logs for details.",
+                to: "${EMAIL_RECIPIENT}"
+            )
+            echo 'Pipeline failed.'
+        }
+        success {
+            emailext(
+                subject: "Jenkins Build Success - ${JOB_NAME} #${BUILD_NUMBER}",
+                body: "The Jenkins build has completed successfully.",
+                to: "${EMAIL_RECIPIENT}"
+            )
+            echo 'Pipeline succeeded.'
         }
     }
 }
