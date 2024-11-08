@@ -1,23 +1,31 @@
 pipeline {
-    agent { label 'slave02' }  // Replace 'slave02' with your actual Jenkins agent label
+    agent { label 'slave02' }
     tools {
-        maven "M2_HOME"  // Specify the Maven tool version here
+        maven "M2_HOME"
     }
 
     environment {
-        EMAIL_RECIPIENT = 'chdouuulaa@gmail.com'  // Set the recipient email address
-        EMAIL_SUBJECT = 'Jenkins Build Notification Test'    // Set the email subject
+        EMAIL_RECIPIENT = 'khangui.mohamedchedli@esprit.tn'
+        EMAIL_SUBJECT = 'Jenkins Build Notification Test'
     }
 
     stages {
         stage("Email Notification Test") {
             steps {
-                // Send a test email notification
-                emailext(
-                    subject: "${EMAIL_SUBJECT}",
-                    body: "This is a test email from Jenkins to verify email notification settings.",
-                    to: "${EMAIL_RECIPIENT}"
-                )
+                script {
+                    // Use credentials from Jenkins Credential Store
+                    withCredentials([usernamePassword(credentialsId: 'smtp-credentials', usernameVariable: 'SMTP_USER', passwordVariable: 'SMTP_PASS')]) {
+                        emailext(
+                            subject: "${EMAIL_SUBJECT}",
+                            body: "This is a test email from Jenkins to verify email notification settings.",
+                            to: "${EMAIL_RECIPIENT}",
+                            replyTo: "${SMTP_USER}",
+                            from: "${SMTP_USER}",
+                            mimeType: 'text/plain',
+                            charset: 'UTF-8'
+                        )
+                    }
+                }
             }
         }
     }
@@ -27,20 +35,30 @@ pipeline {
             echo 'Pipeline finished executing.'
         }
         failure {
-            emailext(
-                subject: "Jenkins Build Failed - ${JOB_NAME} #${BUILD_NUMBER}",
-                body: "The Jenkins build has failed. Please check the build logs for details.",
-                to: "${EMAIL_RECIPIENT}"
-            )
-            echo 'Pipeline failed.'
+            script {
+                withCredentials([usernamePassword(credentialsId: 'smtp-credentials', usernameVariable: 'SMTP_USER', passwordVariable: 'SMTP_PASS')]) {
+                    emailext(
+                        subject: "Jenkins Build Failed - ${JOB_NAME} #${BUILD_NUMBER}",
+                        body: "The Jenkins build has failed. Please check the build logs for details.",
+                        to: "${EMAIL_RECIPIENT}",
+                        replyTo: "${SMTP_USER}",
+                        from: "${SMTP_USER}"
+                    )
+                }
+            }
         }
         success {
-            emailext(
-                subject: "Jenkins Build Success - ${JOB_NAME} #${BUILD_NUMBER}",
-                body: "The Jenkins build has completed successfully.",
-                to: "${EMAIL_RECIPIENT}"
-            )
-            echo 'Pipeline succeeded.'
+            script {
+                withCredentials([usernamePassword(credentialsId: 'smtp-credentials', usernameVariable: 'SMTP_USER', passwordVariable: 'SMTP_PASS')]) {
+                    emailext(
+                        subject: "Jenkins Build Success - ${JOB_NAME} #${BUILD_NUMBER}",
+                        body: "The Jenkins build has completed successfully.",
+                        to: "${EMAIL_RECIPIENT}",
+                        replyTo: "${SMTP_USER}",
+                        from: "${SMTP_USER}"
+                    )
+                }
+            }
         }
     }
 }
